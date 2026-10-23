@@ -226,7 +226,7 @@ describe('InMemoryRepository', () => {
     repo.remove(1);
 
     expect(repo.findById(1)).toBeUndefined();
-    expect(repo.findAll()).toEqual([{ id: 2, name: 'B' }]); // მეორე დარჩა
+    expect(repo.findAll()).toEqual([{ id: 2, name: 'B' }]); 
   });
 
   it('remove throws a plain Error when the entity does not exist', () => {
