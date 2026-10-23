@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": []
+    "types": ["jest"]
   },
   "include": ["JS-TS/**/*.ts", "tests/**/*.ts"]
 }
