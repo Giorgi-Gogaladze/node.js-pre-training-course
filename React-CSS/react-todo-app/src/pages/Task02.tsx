@@ -7,6 +7,7 @@ const Task02: React.FC = () => (
     <div>
       <ToDoItem todo={{ id: 1, title: 'Completed Task', completed: true }} />
       <ToDoItem todo={{ id: 2, title: 'Active Task', completed: false }} />
+      <ToDoItem todo={{ id: 3, title: 'Active Task', completed: true }} />
     </div>
   </TaskWrapper>
 );
