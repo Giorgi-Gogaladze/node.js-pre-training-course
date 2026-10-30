@@ -11,3 +11,34 @@
 .App-link {
   color: #61dafb;
 } 
+
+.todo-list-title {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: rgb(0, 0, 0);
+}
+
+.todo-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.todo-item {
+  padding: 10px;
+  text-align: left;
+}
+
+.todo-status-completed {
+  font-size: 0.9rem;
+  color: rgb(73, 250, 3);
+  margin-left: 10px;
+}
+
+.todo-status-not-completed {
+  font-size: 0.9rem;
+  color: rgb(255, 0, 0);
+  margin-left: 10px;
+}

@@ -1,6 +1,35 @@
 import React from 'react';
 import { TodoListProps } from '../../types';
 
+export const ToDoList: React.FC<TodoListProps> = ({ todos }) => {
+
+  if(!todos || todos.length === 0) {
+    return (
+      <div>
+        <p>No todos available.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <h3 className="todo-list-title">Todo List</h3>
+      <ul className="todo-list">
+        {todos.map((todo) => (
+          <li
+          className="todo-item" 
+          key={todo.id}>
+            {todo.title}
+            <span className={`todo-status ${todo.completed ? 'todo-status-completed' : 'todo-status-not-completed'}`}>
+              {todo.completed ? 'completed' : 'not completed'}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}; 
+
 /**
  * Task 1: ToDoList Component
  * 
@@ -24,26 +53,16 @@ import { TodoListProps } from '../../types';
  * In this task, you'll create a component that displays a list of todos.
  * The component receives an array of todos as props and renders each one.
  */
-export const ToDoList: React.FC<TodoListProps> = ({ todos }) => {
-  // TODO: Implement the ToDoList component
-  // 
-  // Requirements:
-  // 1. Display a list of todos using the todos prop
-  // 2. Each todo should show its title and completion status
-  // 3. Use proper HTML semantics (ul, li elements)
-  // 4. Handle empty todos array gracefully
-  // 
-  // Example usage:
-  // <ToDoList todos={[
-  //   { id: 1, title: 'Learn React', completed: false },
-  //   { id: 2, title: 'Build Todo App', completed: true }
-  // ]} />
-
-  return (
-    <div>
-      {/* TODO: Replace this with your implementation */}
-      <h3>Todo List</h3>
-      <p>Implement the ToDoList component here</p>
-    </div>
-  );
-}; 
+// TODO: Implement the ToDoList component
+// 
+// Requirements:
+// 1. Display a list of todos using the todos prop
+// 2. Each todo should show its title and completion status
+// 3. Use proper HTML semantics (ul, li elements)
+// 4. Handle empty todos array gracefully
+// 
+// Example usage:
+// <ToDoList todos={[
+//   { id: 1, title: 'Learn React', completed: false },
+//   { id: 2, title: 'Build Todo App', completed: true }
+// ]} />
