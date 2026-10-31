@@ -33,26 +33,68 @@ import { Todo } from '../../types';
  * - State changes cause re-renders
  * - Use controlled components for form inputs
  * - Handle form submission properly
+ 
+// TODO: Implement the AddToDo component
+// 
+// Requirements:
+// 1. Create a controlled input field for todo title
+// 2. Add a button to submit the new todo
+// 3. Handle form submission (prevent default behavior)
+// 4. Clear the input after adding a todo
+// 5. Don't add empty todos
+// 
+// Example implementation:
+// const [inputValue, setInputValue] = useState('');
+// const [todos, setTodos] = useState<Todo[]>([]);
  */
 export const AddToDo: React.FC = () => {
-  // TODO: Implement the AddToDo component
-  // 
-  // Requirements:
-  // 1. Create a controlled input field for todo title
-  // 2. Add a button to submit the new todo
-  // 3. Handle form submission (prevent default behavior)
-  // 4. Clear the input after adding a todo
-  // 5. Don't add empty todos
-  // 
-  // Example implementation:
-  // const [inputValue, setInputValue] = useState('');
-  // const [todos, setTodos] = useState<Todo[]>([]);
+  const[todos, setTodos] = useState<Todo[]>([]);
+  const[value, setValue] = useState<string>('');
+
+  function handleSubmit(e: React.FormEvent){
+    e.preventDefault()
+    if(!value.trim()){
+      return;
+    };
+
+    const newTodo: Todo ={
+      id: Date.now(),
+      title: value,
+      completed: false
+    };
+
+    setTodos([...todos, newTodo]);
+    setValue('')
+  }
 
   return (
+   <div className='flex-contaner-dotos'>
+    <h1>Add new todo to the todo list</h1>
     <div>
-      {/* TODO: Replace this with your implementation */}
-      <h4>Add ToDo Component</h4>
-      <p>Implement useState and form handling here</p>
+      <form onSubmit={handleSubmit}>
+        <input 
+        type="text"
+        placeholder='add todo'
+        value={value}
+        onChange={(e) => setValue(e.target.value)}/>
+        <button type='submit'>
+          Add
+        </button>
+      </form>
     </div>
+
+    <div>
+      <h1>Todos</h1>
+      <div>
+        {todos.map((todo) => (
+          <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', alignItems: 'center' }}
+           key={todo.id}>
+            <h3>{todo.title}</h3>
+            <p>{todo.completed ? "Completed" : "not completed"}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+   </div>
   );
 }; 
