@@ -24,5 +24,8 @@ Create a component with a button and an input. Typing a title and clicking the b
 
 **Theoretical Questions:**
 1. What is the useState hook and how does it work?
+useState is the react hook that is used for storing data, it has state_ where we save data and the setter funciton (for example: setState) that is the only funciton able ot change state. Main thing is that state is not durable to refreshing component
 2. How do you update state in React functional components?
+With setter funciton
 3. What is the difference between state and props in React? 
+props is the data passed from parent component to child comp. State is the data that belongs to one specific component but can be shared as a props

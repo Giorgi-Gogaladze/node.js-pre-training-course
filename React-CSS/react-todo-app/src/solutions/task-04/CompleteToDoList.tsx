@@ -38,30 +38,66 @@ import { Todo } from '../../types';
  * - Think about state structure before implementing
  */
 export const CompleteToDoList: React.FC = () => {
-  // TODO: Implement the CompleteToDoList component
-  // 
-  // Requirements:
-  // 1. Display a list of todos with add functionality
-  // 2. Add a "Complete" button for each todo
-  // 3. When clicked, mark the todo as completed
-  // 4. Use immutable state updates
-  // 5. Show completion status for each todo
-  // 
-  // Example state structure:
-  // const [todos, setTodos] = useState<Todo[]>([]);
-  // 
-  // Example update function:
-  // const markCompleted = (id: number) => {
-  //   setTodos(todos.map(todo => 
-  //     todo.id === id ? {...todo, completed: true} : todo
-  //   ));
-  // };
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [inputValue, setInputValue] = useState('');
+
+  const addTodo = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const title = inputValue.trim();
+
+    if (!title) {
+      return;
+    }
+
+    setTodos((currentTodos) => [
+      ...currentTodos,
+      { id: Date.now(), title, completed: false },
+    ]);
+    setInputValue('');
+  };
+
+  const markCompleted = (id: number) => {
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) =>
+        todo.id === id ? { ...todo, completed: true } : todo,
+      ),
+    );
+  };
 
   return (
     <div>
-      {/* TODO: Replace this with your implementation */}
-      <h4>Complete ToDo List Component</h4>
-      <p>Implement immutable state updates here</p>
+      <form onSubmit={addTodo}>
+        <input
+          type="text"
+          placeholder="Add todo"
+          value={inputValue}
+          onChange={(event) => setInputValue(event.target.value)}
+        />
+        <button type="submit">Add</button>
+      </form>
+
+      <ul>
+        {todos.map((todo) => (
+          <li
+            key={todo.id}
+            style={{
+              textDecoration: todo.completed ? 'line-through' : 'none',
+              color: todo.completed ? '#2e7d32' : 'inherit',
+            }}
+          >
+            <span>
+              {todo.title} - {todo.completed ? 'Completed' : 'Not completed'}
+            </span>{' '}
+            <button
+              type="button"
+              onClick={() => markCompleted(todo.id)}
+              disabled={todo.completed}
+            >
+              Complete
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
-}; 
+};
