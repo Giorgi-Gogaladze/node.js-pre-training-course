@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Todo } from '../../types';
+import { CompleteToDoList } from '../task-04/CompleteToDoList';
 
 /**
  * Task 5: FilteredToDoList Component
@@ -44,30 +45,62 @@ import { Todo } from '../../types';
  * - Keep state minimal and derive the rest
  */
 export const FilteredToDoList: React.FC = () => {
-  // TODO: Implement the FilteredToDoList component
-  // 
-  // Requirements:
-  // 1. Display a list of todos with add functionality
-  // 2. Add filter buttons: "All", "Active", "Completed"
-  // 3. Filter todos based on selected filter
-  // 4. Use derived state for filtered results
-  // 5. Add complete functionality for todos
-  // 
-  // Example implementation:
-  // const [todos, setTodos] = useState<Todo[]>([]);
-  // const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
-  // 
-  // const filteredTodos = todos.filter(todo => {
-  //   if (filter === 'active') return !todo.completed;
-  //   if (filter === 'completed') return todo.completed;
-  //   return true; // 'all' case
-  // });
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+
+  const addTodo = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const title = inputValue.trim();
+
+    if (!title) {
+      return;
+    }
+
+    setTodos((currentTodos) => [
+      ...currentTodos,
+      { id: Date.now(), title, completed: false },
+    ]);
+    setInputValue('');
+  };
+
+  const filteredTodos = todos.filter((todo) => {
+    if (filter === 'active') return !todo.completed;
+    if (filter === 'completed') return todo.completed;
+    return true;
+  });
+
+  const markCompleted = (id: number) => {
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) =>
+        todo.id === id ? { ...todo, completed: true } : todo,
+      ),
+    );
+  };
 
   return (
     <div>
-      {/* TODO: Replace this with your implementation */}
-      <h4>Filtered ToDo List Component</h4>
-      <p>Implement derived state and filtering here</p>
+      <form onSubmit={addTodo}>
+        <input
+          type="text"
+          placeholder="Add todo"
+          value={inputValue}
+          onChange={(event) => setInputValue(event.target.value)}
+        />
+        <button type="submit">Add</button>
+      </form>
+
+      <div>
+        <button type="button" onClick={() => setFilter('all')}>All</button>
+        <button type="button" onClick={() => setFilter('active')}>Active</button>
+        <button type="button" onClick={() => setFilter('completed')}>Completed</button>
+      </div>
+
+      <CompleteToDoList
+        todos={filteredTodos}
+        onComplete={markCompleted}
+        showAddForm={false}
+      />
     </div>
   );
-}; 
+};

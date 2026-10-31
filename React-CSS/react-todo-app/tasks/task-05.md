@@ -25,5 +25,11 @@ Add buttons to filter the ToDo list: show all, only completed, or only active to
 
 **Theoretical Questions:**
 1. What is conditional rendering in React and how do you implement it?
+conditional rendering means that rendering elements is depended on some conditions, we basically use syntax (conditions ? 'if condition is satisfies' : 'is condition is not satisfied') insted of those strings we can render any elemnt or component
 2. How do you use the filter method with React state?
+for example: setTodos(todos.filter((todo) => todo.id !== id));
 3. What are the different ways to conditionally render content in React? 
+there are several ways, but basics are:
+if/else
+{completed && <Component>}
+and what we already mentioned in the first task: 

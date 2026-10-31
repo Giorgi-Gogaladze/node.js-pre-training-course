@@ -37,9 +37,20 @@ import { Todo } from '../../types';
  * - Consider using libraries like Immer for complex updates
  * - Think about state structure before implementing
  */
-export const CompleteToDoList: React.FC = () => {
+interface CompleteToDoListProps {
+  todos?: Todo[];
+  onComplete?: (id: number) => void;
+  showAddForm?: boolean;
+}
+
+export const CompleteToDoList: React.FC<CompleteToDoListProps> = ({
+  todos: suppliedTodos,
+  onComplete,
+  showAddForm = true,
+}) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputValue, setInputValue] = useState('');
+  const displayedTodos = suppliedTodos ?? todos;
 
   const addTodo = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,18 +77,20 @@ export const CompleteToDoList: React.FC = () => {
 
   return (
     <div>
-      <form onSubmit={addTodo}>
-        <input
-          type="text"
-          placeholder="Add todo"
-          value={inputValue}
-          onChange={(event) => setInputValue(event.target.value)}
-        />
-        <button type="submit">Add</button>
-      </form>
+      {showAddForm && (
+        <form onSubmit={addTodo}>
+            <input
+              type="text"
+              placeholder="Add todo"
+              value={inputValue}
+              onChange={(event) => setInputValue(event.target.value)}
+            />
+            <button type="submit">Add</button>
+        </form>
+      )}
 
       <ul>
-        {todos.map((todo) => (
+        {displayedTodos.map((todo) => (
           <li
             key={todo.id}
             style={{
@@ -90,7 +103,7 @@ export const CompleteToDoList: React.FC = () => {
             </span>{' '}
             <button
               type="button"
-              onClick={() => markCompleted(todo.id)}
+              onClick={() => (onComplete ?? markCompleted)(todo.id)}
               disabled={todo.completed}
             >
               Complete
