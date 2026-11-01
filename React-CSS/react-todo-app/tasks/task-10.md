@@ -25,5 +25,9 @@ Create a controlled form with an input and a submit button. On submit, add a new
 
 **Theoretical Questions:**
 1. What is a controlled component in React?
+controlled component is a component which data can be managed and saved in state and not in a DOM. for exmaple: input, select, textarea...
 2. How do you handle form submission in React?
+we first have to call the e.preventdefault function that prevents page from refreshing, then we can react the states/values of those contrller components and get the values.
 3. What is the difference between controlled and uncontrolled form inputs? 
+controlled input has its value managed by react state why uncontrolled stores inthe DOM
+
