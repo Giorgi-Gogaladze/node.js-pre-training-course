@@ -24,5 +24,8 @@ Use `useEffect` to fetch todos from an API endpoint (e.g., `/api/todos`) when th
 
 **Theoretical Questions:**
 1. What is the useEffect hook and when should you use it?
+its a react hook that we use to execute some funcitons based on conditions, useeffect has a dep.array that we use to pass conditions/variables, when they change useeffect block executes again. if we leave it empty, it means that it will execute only on mount 
 2. How do you handle async operations in useEffect?
+with async/await and loaders i guess. basically, useeffect is used for  async funcitons, cause we need data to be fetched as soon as possible, but if it takes some time we can display the laoders in meanttime.
 3. What is the difference between useEffect and useState hooks? 
+usestate only saves data, useefects  execute things/funcitons in its block based on dep.array. but they work togather well.
