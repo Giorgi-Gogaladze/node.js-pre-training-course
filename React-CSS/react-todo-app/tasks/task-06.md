@@ -23,5 +23,8 @@ Display the number of active (not completed) todos above the list. The component
 
 **Theoretical Questions:**
 1. How do you use the filter method to count items in JavaScript?
+we create one counting variable with a value of 0, then we filter an array and on satisfied condition we increase count by one.
 2. What is the difference between map, filter, and reduce array methods?
+map transforms array to new arrya, filter filters based on some condition and the reduce mehtod accumulates all items in an array down to a single value
 3. How do you handle conditional text formatting in React components? 
+we can use bactics(basically for styles), we can use ternary operator or logical and (&&) 
