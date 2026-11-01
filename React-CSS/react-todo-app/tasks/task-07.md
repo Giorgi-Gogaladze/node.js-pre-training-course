@@ -24,5 +24,8 @@ Use CSS Modules to style completed todos with a special class (e.g., strikethrou
 
 **Theoretical Questions:**
 1. What are CSS Modules and how do they work in React?
+CSS files where class names are automatically scoped locally with unique hashes to prevent global naming conflicts.
 2. How do you import and use CSS module classes in React components?
+for example: import styles from './file.module.css'_ so we use dot notation
 3. What are the benefits of using CSS Modules over regular CSS? 
+They eliminate global scope pollution and style leaks across components without requiring external CSS-in-JS libraries.

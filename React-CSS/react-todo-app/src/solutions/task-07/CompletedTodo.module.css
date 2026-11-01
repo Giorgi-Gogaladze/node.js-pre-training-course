@@ -6,6 +6,11 @@
   background-color: #f9f9f9;
 }
 
+.todoTitle {
+  font-weight: 600;
+  color: rgb(5, 128, 250)
+}
+
 .completed {
   background-color: #e8f5e8;
   text-decoration: line-through;
