@@ -24,5 +24,8 @@ Create a `Card` component that wraps its children in a styled div. Use it to wra
 
 **Theoretical Questions:**
 1. What is component composition in React?
+compoent composition is a react core design where  we build the component with a smalled compoennts combined. 
 2. How do you use the children prop in React components?
+in that case we will use to pass html as a props and we will defien its type as React.ReactNode
 3. What are the benefits of creating reusable wrapper components? 
+saves time, its reusable and we can use in many scenarios. Dry(dont repeat yourself).
