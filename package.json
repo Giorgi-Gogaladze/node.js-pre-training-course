@@ -25,6 +25,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "@nestjs/core": "^12.3.2",
     "express": "^5.1.0"
   }
 }
