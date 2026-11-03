@@ -8,7 +8,9 @@
     "emitDecoratorMetadata": true,
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "strictPropertyInitialization": false,
+    "useDefineForClassFields": false,
   }
 } 
 

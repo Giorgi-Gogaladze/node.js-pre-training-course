@@ -1,6 +1,7 @@
 // NestJS Controller for /todos
 import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
 import { TodosService } from './task-06';
+import { ToDoDto } from './task-09';
 
 @Controller('todos')
 export class TodosController {
@@ -13,8 +14,8 @@ export class TodosController {
   }
   
   @Post()
-  createTodo(@Body('title') title: string){
-    return this.todoService.addTodo(title)
+  createTodo(@Body() todoDto: ToDoDto){
+    return this.todoService.addTodo(todoDto.title);
   }
 
   @Patch(':id/complete')
