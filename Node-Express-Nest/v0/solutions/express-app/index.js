@@ -3,6 +3,8 @@ const app = express();
 
 app.use(express.json());
 
+app.use('/static', require('./task-08'));
+
 // TODO: Add routes and middleware here
 app.get('/', (req, res) => {
   res.send('Express ToDo App Template');
