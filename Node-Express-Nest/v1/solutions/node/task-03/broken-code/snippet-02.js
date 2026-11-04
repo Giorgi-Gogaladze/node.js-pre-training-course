@@ -1,63 +1,34 @@
-const fs = require("fs");
+const fs = require("fs/promises");
 
-function processUserData(userId, callback) {
-  // Step 1: Read user file
-  fs.readFile(`user-${userId}.json`, "utf8", (err, userData) => {
-    if (err) {
-      callback(err);
-      return;
-    }
-
+async function processUserData(userId) {
+  try {
+    const userData = await fs.readFile(`user-${userId}.json`, "utf8");
     const user = JSON.parse(userData);
 
-    // Step 2: Read user preferences
-    fs.readFile(`preferences-${user.id}.json`, "utf8", (err, prefData) => {
-      if (err) {
-        callback(err);
-        return;
-      }
+    const prefData = await fs.readFile(`preferences-${user.id}.json`, "utf8");
+    const preferences = JSON.parse(prefData);
 
-      const preferences = JSON.parse(prefData);
+    const activityData = await fs.readFile(`activity-${user.id}.json`, "utf8");
+    const activity = JSON.parse(activityData);
 
-      // Step 3: Read user activity
-      fs.readFile(`activity-${user.id}.json`, "utf8", (err, activityData) => {
-        if (err) {
-          callback(err);
-          return;
-        }
+    const combinedData = {
+      user, 
+      preferences,
+      activity,
+      processedAt: `${new Date().toISOString().slice(0, 10)} at ${new Date().toTimeString().slice(0, 9)}`
+    };
 
-        const activity = JSON.parse(activityData);
+    await fs.writeFile(
+      `processed-${userId}.json`,
+      JSON.stringify(combinedData, null, 2)
+    );
 
-        // Step 4: Combine data and write result
-        const combinedData = {
-          user,
-          preferences,
-          activity,
-          processedAt: new Date(),
-        };
-
-        fs.writeFile(
-          `processed-${userId}.json`,
-          JSON.stringify(combinedData, null, 2),
-          (err) => {
-            if (err) {
-              callback(err);
-              return;
-            }
-
-            callback(null, combinedData);
-          }
-        );
-      });
-    });
-  });
+    return combinedData;
+  } catch (error) {
+    throw error; 
+  }
 }
 
-// Usage with issues
-processUserData(123, (err, result) => {
-  if (err) {
-    console.error("Error:", err);
-  } else {
-    console.log("Success:", result);
-  }
-});
+processUserData(123)
+  .then(result => console.log('Success: ', result))
+  .catch(error => console.log('Error:', error.message));
