@@ -13,3 +13,18 @@ Promise.resolve().then(() => console.log("Promise 1"));
 Promise.resolve().then(() => console.log("Promise 2"));
 
 console.log("End");
+
+
+
+/*expected outcome: 
+start
+end
+next tick 1
+next tick 2
+promise 1
+promise 2
+timer 1
+timer 2
+immediate 1
+immediate 2
+*/

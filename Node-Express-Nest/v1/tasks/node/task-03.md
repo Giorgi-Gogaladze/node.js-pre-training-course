@@ -12,8 +12,37 @@ Understand the Node.js event loop by working with async code snippets using `set
 1. **Event Loop Theory Analysis**
 
    - Explain all 6 phases of the Node.js event loop
+   timers: working on settimeout and sertinterval
+   pending callbacks: executes system level callbacks
+   prepare: used for inner needs
+   poll: phase where node reads new data
+   check: for executing setImmediate() function callbacks
+   close callback: working on sockets close events
    - Understand microtasks vs macrotasks
+   microtasks are higher priority  taks that execute before  macrotasks, for exmaple macrotasks are  promises, async funcitons. macrotasks are settimeout and set interval, input-output operations and so on.
    - Demonstrate execution order principles
+      console.log("1. Sync Start");
+
+      setTimeout(() => {
+      console.log("5. Macrotask (setTimeout)");
+      }, 0);
+
+      Promise.resolve().then(() => {
+      console.log("3. Microtask (Promise)");
+      });
+
+      process.nextTick(() => {
+      console.log("2. Microtask (nextTick)");
+      });
+
+      console.log("4. Sync End");
+
+      the output will be:
+      1. Sync Start
+      4. Sync End
+      2. Microtask (nextTick)
+      3. Microtask (Promise)
+      5. Macrotask (setTimeout)
 
 2. **Execution Order Prediction**
 

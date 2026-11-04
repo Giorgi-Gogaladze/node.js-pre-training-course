@@ -27,3 +27,21 @@ process.nextTick(() => {
 });
 
 console.log("=== End ===");
+
+
+
+/*
+expected putcome:
+start
+end
+nexttick
+nested nexttick
+timer
+next tick in timer
+immediate
+nexttick in immediate
+fs.readfile
+nexttick in readfile
+timer in readile
+immediate in readfile
+*/
