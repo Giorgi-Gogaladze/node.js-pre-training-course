@@ -1,6 +1,8 @@
 const fs = require("fs");
 const fsPromises = require("fs").promises;
 const util = require("util");
+const net = require("net");
+const { readJsonConfigFile } = require("typescript");
 
 /**
  * Event Loop Analysis and Async Debugging
@@ -19,12 +21,29 @@ function analyzeEventLoop() {
   // 4. Return analysis object with explanations
 
   const analysis = {
-    phases: [],
-    executionOrder: [],
-    explanations: [],
+    phases: [
+      "timers",
+      "pending callbacks",
+      "idle, prepare",
+      "poll",
+      "check",
+      "close callbacks",
+    ],
+    executionOrder: [
+      "Synchronous code runs first: Start, then End",
+      "process.nextTick callbacks run before Promise microtasks",
+      "Promise callbacks run before the next event-loop phase",
+      "Timer callbacks run in the timers phase",
+      "setImmediate callbacks run in the check phase",
+    ],
+    explanations: [
+      "Synchronous JavaScript runs before event-loop callbacks.",
+      "At each callback boundary, Node.js drains process.nextTick callbacks and then Promise microtasks before continuing to another event-loop callback.",
+      "Timers and setImmediate callbacks belong to different event-loop phases; their relative order at the top level is not guaranteed.",
+      "I/O callbacks are handled in the poll phase, while setImmediate callbacks are handled in the check phase.",
+      "Socket close events are handled in the close callbacks phase.",
+    ],
   };
-
-  console.log("Event loop analysis not implemented yet");
   return analysis;
 }
 
@@ -42,10 +61,30 @@ function predictExecutionOrder(snippet) {
 
   const predictions = {
     snippet1: [
-      // Basic event loop snippet predictions
+      "Start",       
+      "End",      
+      "Next Tick 1",  
+      "Next Tick 2",
+      "Promise 1",  
+      "Promise 2",
+      "Timer 1",  
+      "Timer 2",
+      "Immediate 1", 
+      "Immediate 2",
     ],
     snippet2: [
-      // File system operations snippet predictions
+      "=== Start ===",          
+      "=== End ===",            
+      "NextTick",               
+      "Nested NextTick",        
+      "Timer",                  
+      "NextTick in Timer",      
+      "Immediate",              
+      "NextTick in Immediate",
+      "fs.readFile",            
+      "NextTick in readFile",
+      "Immediate in readFile",  
+      "Timer in readFile"
     ],
   };
 
@@ -67,9 +106,23 @@ async function fixRaceCondition() {
   const files = ["file1.txt", "file2.txt", "file3.txt"];
 
   try {
-    // Implementation goes here
+    const results = await Promise.all(
+      files.map(async (file) => {
+        try {
+          const content = await fsPromises.readFile(file, "utf8");
+          return content.toUpperCase();
+        } catch (error) {
+          if(error.code === "ENOENT"){
+            const defaultCaontent = `Content of ${file}`;
+            await fsPromises.writeFile(file, defaultCaontent);
+            return defaultCaontent.toUpperCase();
+          }
+          throw error;
+        }
+      })
+    );
     console.log("Race condition fix not implemented yet");
-    return [];
+    return results;
   } catch (error) {
     throw new Error(`Failed to process files: ${error.message}`);
   }
@@ -79,7 +132,27 @@ async function fixRaceCondition() {
  * Convert callback hell to async/await
  * @param {number} userId - User ID to process
  * @returns {Promise} Promise that resolves with processed user data
- */
+*/
+
+
+async function readJSON(fileName){
+  let text;
+  try {
+    text = await fsPromises.readFile(fileName, "utf8");
+  } catch (error) {
+    if(error.code === 'ENOENT'){
+      throw Error(`file no found: ${fileName}`)
+    }
+    throw error;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw new Error(`invalid JSON in ${fileName}: ${error.message}`)
+  }
+}
+
 async function fixCallbackHell(userId) {
   // TODO: Convert callback hell to async/await
   // Issues to fix:
@@ -89,14 +162,27 @@ async function fixCallbackHell(userId) {
   // 4. No file existence checking
   // 5. Blocking operations
 
+  
   try {
-    // Step 1: Read user file
-    // Step 2: Read user preferences
-    // Step 3: Read user activity
-    // Step 4: Combine data and write result
+    const user = await readJSON(`user-${userId}.json`);
+    const [preferences, activity] = await Promise.all([
+      readJSON(`preferences-${user.id}.json`),
+      readJSON(`activity-${user.id}.json`),
+    ]);
 
-    console.log("Callback hell fix not implemented yet");
-    return null;
+    const combinedData = {
+      user, 
+      preferences, 
+      activity,
+      processedAt: `${new Date().toTimeString().slice(0, 10)}-${new Date().toTimeString().slice(11, 19)}`
+    }
+
+    await fsPromises.writeFile(
+      `processed-${userId}.json`,
+      JSON.stringify(combinedData, null, 2)
+    );
+
+    return combinedData;
   } catch (error) {
     throw new Error(`Failed to process user data: ${error.message}`);
   }
@@ -115,8 +201,30 @@ async function fixMixedAsync() {
   // 4. No proper async/await usage
 
   try {
-    // Implementation goes here
-    console.log("Mixed async fix not implemented yet");
+    console.log("Processing input data...");
+    let data;
+    try {
+      data = await fsPromises.readFile("input.txt", "utf8");
+      console.log("Input file read successfully.");
+    } catch (error) {
+      if (error.code !== "ENOENT") {
+        throw error;
+      }
+      data = "hello world";
+      await fsPromises.writeFile("input.txt", data, "utf8");
+      console.log("Input file was missing; created it with sample data.");
+    }
+
+    const processedData = data.toUpperCase();
+    await fsPromises.writeFile("output.txt", processedData, "utf8");
+    console.log("Processing completed; output file written successfully.");
+
+    const verifiedData = await fsPromises.readFile("output.txt", "utf8");
+    if (verifiedData !== processedData) {
+      throw new Error("Output verification failed.");
+    }
+    console.log("Result verified successfully; character count:", verifiedData.length);
+    return { input: data, result: verifiedData, length: verifiedData.length };
   } catch (error) {
     throw new Error(`Failed to process data: ${error.message}`);
   }
@@ -126,6 +234,13 @@ async function fixMixedAsync() {
  * Demonstrate all event loop phases
  * @returns {Promise} Promise that resolves when demonstration is complete
  */
+
+function runInMacrotask(fn) {
+  return new Promise((resolve) => {
+    setImmediate(() => fn(resolve))
+  })
+}
+
 async function demonstrateEventLoop() {
   // TODO: Create comprehensive event loop demonstration
   // 1. Show timers phase (setTimeout, setInterval)
@@ -135,7 +250,66 @@ async function demonstrateEventLoop() {
   // 5. Show close callbacks phase
   // 6. Demonstrate microtask priority (nextTick, Promises)
 
-  console.log("Event loop demonstration not implemented yet");
+  logWithPhase("--- 1. microtask vs macrotask", "sync");
+  await runInMacrotask((done) => {
+    logWithPhase("sync start", "sync");
+
+    setTimeout(() => {
+      logWithPhase("setTimeout callback(macrotask)", "timers");
+      done();
+    }, 0);
+
+    Promise.resolve().then(() => logWithPhase("promise.then(microtask)", "promise"));
+    process.nextTick(() => logWithPhase("process.nextTick (microtask)", "nextTick"))
+
+    logWithPhase("sync end", "sync")
+  });
+
+
+
+
+  logWithPhase("--- 3. Pending callbacks: system callbacks ---", "pending");
+
+
+
+  logWithPhase("--- 4. Poll & Check phases (fs.readFile) ---", "sync");
+  await new Promise((resolve) => {
+    fs.readFile(__filename, () => {
+      logWithPhase("readFile callback (I/O)", "poll");
+      setTimeout(() => {
+        logWithPhase("setTimeout 0 ", "timers");
+        resolve();
+      }, 0);
+      setImmediate(() => logWithPhase("setImmediate", "check"));
+      process.nextTick(() => logWithPhase("nextTick in readFile", "nextTick"));
+    });
+  });
+
+
+
+  logWithPhase("--- 5. Close callbacks phase (socket) ---", "sync");
+  await new Promise((resolve) => {
+    const server = net.createServer();
+
+    server.listen(0, "127.0.0.1", () => {
+      const { port } = server.address();
+
+      const client = net.connect(port, "127.0.0.1", () => {
+        logWithPhase("client connected → destroy()", "poll");
+        client.destroy();
+        setImmediate(() => logWithPhase("setImmediate", "check"));
+      });
+
+      client.on("close", () => {
+        logWithPhase("socket 'close' event", "close");
+        server.close(() => resolve());
+      });
+
+      client.on("error", () => resolve());
+    });
+  });
+
+  logWithPhase("demonsarion finished", "sync");
 }
 
 /**
@@ -170,27 +344,45 @@ async function createTestFiles() {
   };
 
   try {
-    // Implementation goes here
-    console.log("Test files creation not implemented yet");
+    const writes = Object.entries(testData).map(([fileName, content]) => {
+
+      const text =
+        typeof content === "string" ? content : JSON.stringify(content, null, 2);
+
+        return fsPromises.writeFile(fileName, text);
+    });
+
+    await Promise.all(writes);
+
+    logWithPhase(`Created ${writes.length} test files`, "sync");
   } catch (error) {
     console.error("Failed to create test files:", error.message);
   }
 }
 
-/**
- * Helper function to log with timestamps
- * @param {string} message - Message to log
- * @param {string} phase - Event loop phase
- */
-function logWithPhase(message, phase = "unknown") {
-  // TODO: Implement detailed logging
-  // 1. Add timestamp
-  // 2. Add event loop phase information
-  // 3. Add color coding for different phases
-  // 4. Format output for better readability
 
-  console.log(`[${phase}] ${message}`);
+const RESET = "\x1b[0m";
+const PHASE_COLORS = {
+  sync: "\x1b[37m",     // white
+  nextTick: "\x1b[35m", // red
+  promise: "\x1b[36m",  // sky blue
+  timers: "\x1b[33m",   // yellow
+  pending: "\x1b[90m",  // gray
+  poll: "\x1b[34m",     // blue
+  check: "\x1b[32m",    // green
+  close: "\x1b[31m",    // dark red
+  unknown: "\x1b[0m",
+};
+
+function logWithPhase(message, phase = "unknown") {
+  const time = new Date().toISOString().slice(11, 23);
+
+  const color = PHASE_COLORS[phase] || PHASE_COLORS.unknown;
+
+  console.log(`${color}[${time}] [${phase.toLowerCase().padEnd(8)}] ${message}${RESET}`);
 }
+
+
 
 // Export functions and data
 module.exports = {
@@ -205,7 +397,7 @@ module.exports = {
 };
 
 // Example usage (for testing):
-const isReadyToTest = false;
+const isReadyToTest = true;
 
 if (isReadyToTest) {
   async function runExamples() {

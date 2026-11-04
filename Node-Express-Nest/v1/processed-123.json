@@ -1,18 +1,18 @@
 {
   "user": {
-    "id": 456,
-    "name": "Giorgi",
-    "email": "giorgi@example.com"
+    "id": 123,
+    "name": "John Doe",
+    "email": "john@example.com"
   },
   "preferences": {
-    "lastLogin": "2026-06-05T10:00:00Z",
-    "loginCount": 42,
-    "status": "active"
+    "theme": "dark",
+    "language": "en",
+    "notifications": true
   },
   "activity": {
-    "lastLogin": "2026-06-05T10:00:00Z",
-    "loginCount": 42,
-    "status": "active"
+    "lastLogin": "2025-01-01",
+    "sessionsCount": 42,
+    "totalTime": 3600
   },
-  "processedAt": "2026-11-04 at 12:59:37 "
+  "processedAt": "16:29:08 G-T+0400 ("
 }
