@@ -440,12 +440,41 @@ class TodoServer {
     // 4. Add to storage
     // 5. Return 201 with created todo
     // 6. Handle validation errors
+    if(req.mehtod !== "POST"){
+      return sendResponse(res, 501, {
+        success: false,
+        error: "Create todo not implemented yet",
+      });
+    };
 
-    console.log("Create todo not implemented yet");
-    sendResponse(res, 501, {
-      success: false,
-      error: "Create todo not implemented yet",
-    });
+    let body;
+
+    try {
+      body = parseBody(req);
+    } catch (error) {
+      return sendResponse(res, 400, {success: false, error: error.message})
+    };
+
+    const {isValid, errors} = validateTodo(body, false);
+    if(!isValid){
+      return sendResponse(res, 400, {
+        success: false,
+        error: errors.join("; ")
+      });
+    }
+
+    const now = new Date();
+    const todo = {
+      id: this.generateNextId(),
+      title: body.title.trim(),
+      description: body.description !== undefined ? body.description : "",
+      completed: body.completed !== undefined ? body.completed : false,
+      createdAt: now, 
+      updatedAt: now,
+    };
+
+    this.todos.push(todo);
+    sendResponse(res, 200, { success: true, data: todo})
   }
 
   /**
