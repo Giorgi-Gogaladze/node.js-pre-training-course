@@ -264,7 +264,27 @@ class TodoServer {
     // 3. Log server startup message
     // 4. Handle server errors
 
-    console.log("Server start not implemented yet");
+    this.server = http.createServer((req, res) => this.handleRequest(req, res));
+
+    this.server.on("error", (error) => {
+      if(error.code === "EADDRINUSE"){
+        console.error(`Port ${this.port} is already in use`);
+      }else {
+        console.error("Server error:", error.message)
+      }
+    });
+
+    this.server.on("connection", () => {
+      console.log("server connected successgully")
+    });
+
+    this.server.listen(this.port, () => {
+      console.log("=== todoserver started ===")
+      console.log(`server runnning on port: ${this.port}`)
+    });
+
+    return this.server;
+
   }
 
   /**
@@ -279,27 +299,51 @@ class TodoServer {
     // 3. Handle CORS preflight requests (OPTIONS)
     // 4. Call appropriate handler method
     // 5. Handle unknown routes with 404
+    
+    // Route to appropriate handler based on method and path
+    // GET /todos -> getAllTodos
+    // GET /todos/:id -> getTodoById
+    // POST /todos -> createTodo
+    // PUT /todos/:id -> updateTodo
+    // DELETE /todos/:id -> deleteTodo
+    // OPTIONS -> handleCORS
 
     try {
       const parsedUrl = url.parse(req.url, true);
       const { pathname, query } = parsedUrl;
       const method = req.method;
 
-      console.log(
-        `${method} ${pathname} - Request handling not implemented yet`
-      );
+      if(method === "OPTIONS"){
+        return this.handleCORS(req, res);
+      }
 
-      // Route to appropriate handler based on method and path
-      // GET /todos -> getAllTodos
-      // GET /todos/:id -> getTodoById
-      // POST /todos -> createTodo
-      // PUT /todos/:id -> updateTodo
-      // DELETE /todos/:id -> deleteTodo
-      // OPTIONS -> handleCORS
+      const path = 
+        pathname.length > 1 && pathname.endsWith("/")
+        ? pathname.slice(0, -1)
+        : pathname;
 
-      sendResponse(res, 501, {
-        success: false,
-        error: "Request handling not implemented yet",
+      if(path === "/todos"){
+        if(method === "GET") return await this.getAllTodos(req, res, query);
+        if(method === "POST") return await this.createTodo(req, res);
+
+        return sendResponse(res, 405, {
+          success: false,
+          error: "Method not allowed"
+        });
+      }
+
+      const params = parsePathParams("/todos/:id", path);
+      if(params) {
+        if(method === "GET") return  await this.getTodoById(req, res, params);
+        if(method === 'PUT') return await this.updateTodo(req, res, params);
+        if(mehtod === "DELETE") return await this.deleteTodo(req, res, params);
+        return sendResponse(res, 405, {
+          success: false,
+          error: "Method not allowed"
+        });
+      }
+
+      sendResponse(res, 404, {success: false, error: "route not ofund yet",
       });
     } catch (error) {
       console.error("Request handling error:", error);
