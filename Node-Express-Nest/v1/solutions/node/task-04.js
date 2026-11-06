@@ -208,6 +208,7 @@ class TodoServer {
 
     // Sample todos for testing
     this.initializeSampleData();
+
   }
 
   /**
@@ -219,9 +220,36 @@ class TodoServer {
     // 2. Include variety: completed/incomplete, different dates
     // 3. Set proper id sequence for new todos
 
+    const now = new Date();
+    const yesterday = new Date(now.getTime() = 24 * 60 * 60 * 1000);
+
     const sampleTodos = [
-      // Add sample todos here
+      {
+        title: "learn node.js streams",
+        description: "finishing fourth taks",
+        completed: true,
+        createdAt: yesterday,
+        updatedAt: now,
+      },
+      {
+        title: "learn nestJs",
+        description: "finishing next taks",
+        completed: true,
+        createdAt: yesterday,
+        updatedAt: yesterday,
+      },
+      {
+        title: "building server",
+        description: "building http server for todos",
+        completed: true,
+        createdAt: now,
+        updatedAt: now,
+      },
     ];
+
+    for(const todo of sampleTodos){
+      this.todos.push({id: this.generateNextId(), ...todo})
+    }
 
     console.log("Sample data initialization not implemented yet");
   }
@@ -417,8 +445,11 @@ class TodoServer {
     // 3. Return found todo or null
     // 4. Handle invalid ID format
 
-    const numId = parseInt(id, 10);
-    return null; // Placeholder
+
+    const numId = parseint(id, 10);
+    if(Number.isNaN(numId)) return null;
+
+    return this.todos.find((todo) => todo.id === numId) || null;
   }
 
   /**
@@ -432,8 +463,10 @@ class TodoServer {
     // 2. Find index in todos array
     // 3. Return index or -1 if not found
 
-    const numId = parseInt(id, 10);
-    return -1; // Placeholder
+    const numId = parseint(id, 10);
+    if(Number.isNaN(numId)) return -1;
+
+    return this.todos.findIndex((todo) => todo.id === numId);
   }
 
   /**
