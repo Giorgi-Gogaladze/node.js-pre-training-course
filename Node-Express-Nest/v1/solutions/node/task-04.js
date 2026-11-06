@@ -133,8 +133,6 @@ function validateTodo(todoData, isUpdate = false) {
   // 4. Return validation result with errors array
   // 5. Handle update vs create validation differences
 
-  const errors = [];
-
   // Title validation
   // - Required for create, optional for update
   // - Must be string
@@ -149,10 +147,49 @@ function validateTodo(todoData, isUpdate = false) {
   // Completed validation
   // - Optional field
   // - Must be boolean if provided
+  const errors = [];
 
-  console.log("Todo validation not implemented yet");
-  return { isValid: true, errors };
+  if(
+    todoData === null ||
+    typeof todoData !== "object" ||
+    Array.isArray(todoData)
+  ){
+    return {isValid: false, error: ["Request body must be a JSON object"]}
+  };
+
+  const hasTitle = todoData.title !== undefined;
+  if(!hasTitle){
+    if(!isUpdate){
+      errors.push("Title is required");
+    }
+  }else if(typeof todoData.title !== "string"){
+    errors.push('Title must be a string');
+  } else {
+    const trimmed = todoData.title.trim();
+    if(trimmed.length === 0){
+      errors.push('Title can`t be an empty sting')
+    }else if(trimmed.length > 100){
+      errors.push("Title can't be more than 100 cahracters")
+    }
+  }
+
+  if(todoData.description !== undefined){
+    if(typeof todoData.description !== "stirng"){
+      errors.push("description must be a stirng")
+    } else if ( todoData.description.length > 500){
+      errors.push("Desscription can't be more than 500 characters")
+    }
+  }
+
+  if(todoData.completed !== undefined && typeof todoData.completed !=="boolean"){
+    errors.push("completed must be a boolean")
+  }
+
+  return{isValid: errors.length === 0, errors}
+
 }
+
+
 
 /**
  * TodoServer Class - Main HTTP server for Todo API
