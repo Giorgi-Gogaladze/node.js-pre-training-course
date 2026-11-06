@@ -23,9 +23,29 @@ function parseBody(req) {
   return new Promise((resolve, reject) => {
     let body = "";
 
-    // Implementation goes here
-    console.log("Body parsing not implemented yet");
-    resolve({});
+    req.on("data", (chunk) => {
+      body += chunk;
+    });
+
+    if(body.length > 1_000_000){
+      reject(new Error("Request body too large"));
+      req.destroy();
+    };
+
+    req.on("end", () => {
+      if(body.trim() === ""){
+        resolve({});
+        return;
+      }
+
+      try {
+        resolve(JSON.parse(body));
+      } catch (error) {
+        reject(new Error("invalid Json"))
+      }
+    });
+
+    req.on("error", (error) => reject(error));
   });
 }
 
