@@ -43,10 +43,25 @@ function parsePathParams(pattern, path) {
   // 4. Return object with parameter names and values
   // 5. Handle edge cases (no params, mismatched segments)
 
+  const patternParts = pattern.split("/");
+  const pathParts = path.split("/");
+
+  if(patternParts.length !== pathParts.length){
+    return null;
+  }
   const params = {};
 
-  // Implementation goes here
-  console.log("Path params parsing not implemented yet");
+  for(let i = 0; i < patternParts.length; i++){
+    const patternPart = patternParts[i];
+    const pathPart = pathParts[i];
+
+    if(patternPart.startsWith(":")){
+      const name = patternPart.slice(1);
+      params[name] = decodeURIComponent(pathPart);
+    } else if(patternPart !== pathPart){
+      return null
+    }
+  }
   return params;
 }
 
@@ -70,8 +85,18 @@ function sendResponse(res, statusCode, data) {
   // - Access-Control-Allow-Methods: GET, POST, PUT, DELETE
   // - Access-Control-Allow-Headers: Content-Type
 
-  console.log("Response sending not implemented yet");
-  res.end();
+  res.writeHeader(statusCode, {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+    "Access-Control-Allow-Headers": "Content-Type",
+  });
+
+  if(statusCode === 204){
+    res.end();
+    return;
+  }
+  res.end(JSON.stringify(data));
 }
 
 /**
