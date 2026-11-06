@@ -251,7 +251,6 @@ class TodoServer {
       this.todos.push({id: this.generateNextId(), ...todo})
     }
 
-    console.log("Sample data initialization not implemented yet");
   }
 
   /**
@@ -308,10 +307,15 @@ class TodoServer {
     // DELETE /todos/:id -> deleteTodo
     // OPTIONS -> handleCORS
 
+    
     try {
       const parsedUrl = url.parse(req.url, true);
       const { pathname, query } = parsedUrl;
       const method = req.method;
+
+      res.on("finish", () => {
+        console.log(`${method} ${pathname} -> ${res.statusCode}`)
+      })
 
       if(method === "OPTIONS"){
         return this.handleCORS(req, res);
@@ -477,6 +481,8 @@ class TodoServer {
     sendResponse(res, 200, { success: true, data: todo})
   }
 
+
+
   /**
    * Handle PUT /todos/:id - Update existing todo
    * @param {IncomingMessage} req - HTTP request
@@ -493,13 +499,43 @@ class TodoServer {
     // 6. Update timestamp
     // 7. Return updated todo
     // 8. Handle not found and validation errors
+    if(req.method !== "PUT"){
+      return sendResponse(res, 501, {
+        success: false,
+        error: "Update todo not implemented yet",
+      });
+    }
 
-    console.log("Update todo not implemented yet");
-    sendResponse(res, 501, {
-      success: false,
-      error: "Update todo not implemented yet",
-    });
+    const todo = this.findTodoById(params.id);
+    if(!todo){
+      return sendResponse(res, 404, {success: false, error: "Todo not found"});
+    }
+
+    let body;
+    try {
+      body = await parseBody(res);
+    } catch (error) {
+      return sendResponse(res, 400, {success: false, error: error.message})
+    }
+
+    const {isValid, errors} = validateTodo(body, true);
+    if(!isValid){
+      return sendResponse(res, 400, {
+        success: false,
+        error: errors.join("; ")
+      });
+    }
+
+    if(body.title !== undefined) todo.title = body.title.trim();
+    if(body.description !== undefined) todo.description = body.description;
+    if(body.completed !== undefined) todo.completed = body.completed;
+    todo.updatedAt = new Date();
+
+    sendResponse(res, 200, { success: true, data: todo});
   }
+
+
+
 
   /**
    * Handle DELETE /todos/:id - Delete todo
@@ -516,11 +552,26 @@ class TodoServer {
     // 5. Return success message
     // 6. Handle invalid ID format
 
-    console.log("Delete todo not implemented yet");
-    sendResponse(res, 501, {
-      success: false,
-      error: "Delete todo not implemented yet",
-    });
+    if(req.mehtod !== "DELETE"){
+      return sendResponse(res, 501, {
+        success: false,
+        error: "Delete todo not implemented yet",
+      });
+    }
+
+    const index = this.findTodoIndexById(params.id);
+
+    if(index === -1){
+      return sendResponse(res, 404, {success: false, error: "Todo not found"});
+    }
+
+    this.todos.splice(index, 1);
+    sendResponse(res, 200, {
+      success: true,
+      message: "Todo deleted successfully"
+    })
+
+
   }
 
   /**
@@ -534,7 +585,6 @@ class TodoServer {
     // 2. Return 204 No Content
     // 3. Handle preflight request properly
 
-    console.log("CORS handling not implemented yet");
     sendResponse(res, 204, {});
   }
 
