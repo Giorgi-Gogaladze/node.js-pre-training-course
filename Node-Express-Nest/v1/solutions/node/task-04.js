@@ -366,12 +366,31 @@ class TodoServer {
     // 2. Apply completed filter if provided in query
     // 3. Return success response with data and count
     // 4. Handle query parameter validation
+    if(req.method !== "GET"){
+      return sendResponse(res, 501, {success: false, error: "Incorrect http method"})
+    }
 
-    console.log("Get all todos not implemented yet");
-    sendResponse(res, 501, {
-      success: false,
-      error: "Get all todos not implemented yet",
-    });
+    let result = this.todos;
+
+    if(query.completed !== undefined){
+      if(query.completed !== "true" && query.completed !== "false"){
+        return sendResponse(res, 400, {
+          success: false,
+          error: "query parameter 'completed' must be 'true' or 'false' "
+        });
+      };
+
+
+      const wanted = query.completed === "true";
+      result = result.filter((todo) => todo.completed === wanted);
+    }
+
+    sendResponse(res, 200, {
+      success: true,
+      data: result,
+      count: result.length
+    })
+   
   }
 
   /**
@@ -388,11 +407,24 @@ class TodoServer {
     // 4. Return success response with todo data
     // 5. Handle invalid ID format
 
-    console.log("Get todo by ID not implemented yet");
-    sendResponse(res, 501, {
-      success: false,
-      error: "Get todo by ID not implemented yet",
-    });
+    if(req.method !== "GET"){
+      return sendResponse(res, 501, {
+        success: false, 
+        error: "Get todo by ID not implemented"
+      })
+    }
+
+    const todo = this.findTodoById(params.id);
+    if(!todo){
+      return sendResponse(res, 404, { 
+        success: false, 
+        error: "Todo not found"
+      })
+    }
+    sendResponse(res, 200, {
+      success: true,
+      data: todo,
+    })
   }
 
   /**
