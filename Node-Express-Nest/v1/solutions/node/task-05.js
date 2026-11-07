@@ -66,24 +66,46 @@ class AnalyticsTracker {
     // TODO: implement daily stats tracking
     // - use YYYY-MM-DD date keys
     // - track created, updated, deleted, views per day
+    const day = new Date().toISOString().slice(0, 10);
+
+    if(!this.stats.dailyStats[day]){
+      this.stats.dailyStats[day] = {
+        created: 0, 
+        updated: 0, 
+        deleted: 0, 
+        views: 0
+      };
+    }
+    this.stats.dailyStats[day][field]++;
   }
+
+
   trackCreated() {
-    // TODO: implement tracking logic
+    this.stats.totalCreated++;
+    this._bumpDaily('created')
   }
+
   trackUpdated() {
-    // TODO: implement tracking logic
+    this.stats.totalUpdated++;
+    this._bumpDaily('updated')
   }
+
   trackDeleted() {
-    // TODO: implement tracking logic
+    this.stats.totalDeleted++;
+    this._bumpDaily('deleted')
   }
+
   trackViewed() {
-    // TODO: implement tracking logic
+    this.stats.totalViews++;
+    this._bumpDaily('views')
   }
+
   trackError() {
-    // TODO: implement tracking logic
+    this.stats.errors++;
   }
+
   getStats() {
-    // TODO: implement stats retrieval
+    return JSON.parse(JSON.stringify(this.stats));
   }
 }
 
