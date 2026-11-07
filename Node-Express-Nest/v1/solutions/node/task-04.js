@@ -105,7 +105,7 @@ function sendResponse(res, statusCode, data) {
   // - Access-Control-Allow-Methods: GET, POST, PUT, DELETE
   // - Access-Control-Allow-Headers: Content-Type
 
-  res.writeHeader(statusCode, {
+  res.writeHead(statusCode, {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
@@ -174,8 +174,8 @@ function validateTodo(todoData, isUpdate = false) {
   }
 
   if(todoData.description !== undefined){
-    if(typeof todoData.description !== "stirng"){
-      errors.push("description must be a stirng")
+    if(typeof todoData.description !== "string"){
+      errors.push("description must be a string")
     } else if ( todoData.description.length > 500){
       errors.push("Desscription can't be more than 500 characters")
     }
@@ -221,7 +221,7 @@ class TodoServer {
     // 3. Set proper id sequence for new todos
 
     const now = new Date();
-    const yesterday = new Date(now.getTime() = 24 * 60 * 60 * 1000);
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
     const sampleTodos = [
       {
@@ -340,14 +340,14 @@ class TodoServer {
       if(params) {
         if(method === "GET") return  await this.getTodoById(req, res, params);
         if(method === 'PUT') return await this.updateTodo(req, res, params);
-        if(mehtod === "DELETE") return await this.deleteTodo(req, res, params);
+        if(method === "DELETE") return await this.deleteTodo(req, res, params);
         return sendResponse(res, 405, {
           success: false,
           error: "Method not allowed"
         });
       }
 
-      sendResponse(res, 404, {success: false, error: "route not ofund yet",
+      sendResponse(res, 404, {success: false, error: "route not found yet",
       });
     } catch (error) {
       console.error("Request handling error:", error);
@@ -380,7 +380,7 @@ class TodoServer {
       if(query.completed !== "true" && query.completed !== "false"){
         return sendResponse(res, 400, {
           success: false,
-          error: "query parameter 'completed' must be 'true' or 'false' "
+          error: "Invalid JSON"
         });
       };
 
@@ -431,6 +431,8 @@ class TodoServer {
     })
   }
 
+
+
   /**
    * Handle POST /todos - Create new todo
    * @param {IncomingMessage} req - HTTP request
@@ -444,7 +446,7 @@ class TodoServer {
     // 4. Add to storage
     // 5. Return 201 with created todo
     // 6. Handle validation errors
-    if(req.mehtod !== "POST"){
+    if(req.method !== "POST"){
       return sendResponse(res, 501, {
         success: false,
         error: "Create todo not implemented yet",
@@ -454,7 +456,7 @@ class TodoServer {
     let body;
 
     try {
-      body = parseBody(req);
+      body = await parseBody(req);
     } catch (error) {
       return sendResponse(res, 400, {success: false, error: error.message})
     };
@@ -478,7 +480,7 @@ class TodoServer {
     };
 
     this.todos.push(todo);
-    sendResponse(res, 200, { success: true, data: todo})
+    sendResponse(res, 201, { success: true, data: todo})
   }
 
 
@@ -513,7 +515,7 @@ class TodoServer {
 
     let body;
     try {
-      body = await parseBody(res);
+      body = await parseBody(req);
     } catch (error) {
       return sendResponse(res, 400, {success: false, error: error.message})
     }
@@ -552,7 +554,7 @@ class TodoServer {
     // 5. Return success message
     // 6. Handle invalid ID format
 
-    if(req.mehtod !== "DELETE"){
+    if(req.method !== "DELETE"){
       return sendResponse(res, 501, {
         success: false,
         error: "Delete todo not implemented yet",
@@ -601,7 +603,7 @@ class TodoServer {
     // 4. Handle invalid ID format
 
 
-    const numId = parseint(id, 10);
+    const numId = parseInt(id, 10);
     if(Number.isNaN(numId)) return null;
 
     return this.todos.find((todo) => todo.id === numId) || null;
@@ -618,7 +620,7 @@ class TodoServer {
     // 2. Find index in todos array
     // 3. Return index or -1 if not found
 
-    const numId = parseint(id, 10);
+    const numId = parseInt(id, 10);
     if(Number.isNaN(numId)) return -1;
 
     return this.todos.findIndex((todo) => todo.id === numId);
