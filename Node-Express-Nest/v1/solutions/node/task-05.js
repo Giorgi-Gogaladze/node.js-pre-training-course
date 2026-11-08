@@ -9,7 +9,6 @@
 const http = require("http");
 const url = require("url");
 const { EventEmitter } = require("events");
-const { escape } = require("querystring");
 
 // ---------- Utilities ----------
 
@@ -217,13 +216,19 @@ class TodoServer extends EventEmitter {
     this.todos = [];
     this.nextId = 1;
 
+
     // TODO: initialize analytics tracker
     // TODO: initialize logger
     // TODO: initialize recent events list keeping last 100 events
+    this.analytics = new AnalyticsTracker();
+    this.logger = new ConsoleLogger();
+    this.recentEvents = [];
+
     this.server = null;
 
     this._wireDefaultListeners();
   }
+
 
   _wireDefaultListeners() {
     const remember = (eventType) => (data) => {
@@ -265,15 +270,46 @@ class TodoServer extends EventEmitter {
    * Start the server
    */
   async start() {
-    // TODO: create HTTP server and bind request handler
-    // TODO: listen on this.port
+    return new Promise((resolve, reject) => {
+      this.server = http.createServer((req, res) => {
+        this._handleRequest(req, res).catch(() => {
+          if(!res.headersSent){
+            sendJson(res, 500, {success: false, error: "Internal server error"})
+          }
+        });
+      });
+
+      this.server.once("error", reject);
+
+      this.server.listen(this.port, () => {
+        this.server.removeListener("error", reject);
+        console.log("---todo server started---");
+        console.log(`Server running on http://localhost:${this.port}`);
+        resolve();
+      })
+
+    })
   }
+
+
 
   /**
    * Stop the server
    */
   async stop() {
-    // TODO: stop the HTTP server if running
+    if(!this.server) return;
+
+    return new Promise((resolve, reject) => {
+      this.server.close((error) => {
+        if(typeof this.server.closeAllConnections === "function"){
+          this.server.closeAllConnections();
+        }
+        this.server = null;
+        if(error) return reject(error);
+        resolve();
+      })
+    })
+
   }
 
   /**
@@ -292,3 +328,4 @@ class TodoServer extends EventEmitter {
 }
 
 module.exports = { TodoServer };
+
