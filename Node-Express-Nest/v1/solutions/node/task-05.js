@@ -9,6 +9,7 @@
 const http = require("http");
 const url = require("url");
 const { EventEmitter } = require("events");
+const { escape } = require("querystring");
 
 // ---------- Utilities ----------
 
@@ -162,6 +163,49 @@ function validateTodoPayload(payload, isCreate = false) {
   // - title: required, non-empty string
   // - description: optional, string
   // - completed: optional, boolean (default false)
+
+  if(payload === null || typeof payload !== "object" || Array.isArray(payload)){
+    return {errors: ['REquest body must be a json object'], values: out};
+  }
+
+  if(payload.title === undefined){
+    if(isCreate) errors.push('Title is required')
+  } else if(typeof payload.title !== "string"){
+    errors.push('Title must be a string')
+  } else {
+    const title = payload.title.trim();
+    if(title.length === 0){
+      errors.push("Title can't be empty or whitespace");
+    } else if(title.length > 100){
+      errors.push("Title can't be more than 100 chars")
+    } else{
+      out.title = title;
+    }
+  }
+
+  if(payload.description !== undefined){
+    if(typeof payload.description !== "string"){
+      errors.push("DEscription must be a string")
+    }else if(payload.description.length > 500){
+      errors.push("Description cant be more than 500 characters")
+    } else {
+      out.description = payload.description;
+    }
+  };
+
+  if(payload.completed !== undefined){
+    if(typeof payload.completed !== "boolean"){
+      errors.push("completed must be a boolean")
+    } else {
+      out.completed = payload.completed;
+    }
+  }
+
+
+  if(isCreate){
+    if(out.description === undefined) out.description = "";
+    if(out.completed === undefined) out.completed = false;
+  }
 
   return { errors, values: out };
 }
