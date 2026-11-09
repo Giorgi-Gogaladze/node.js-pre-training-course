@@ -396,7 +396,44 @@ class TodoServer extends EventEmitter {
         sendJson(res, 500, {success: false, error: "Internal server error"});
       }
     }
+  }
 
+
+  _handleList(req, res, query){
+    let result = this.todos;
+    const filters = {};
+
+    if(query.completed !== undefined){
+      if(query.completed !== "true" && query.completed !== "false"){
+        const errors = ["Query parameter 'completed' muts  be 'true' or 'false'"];
+        this._emitEvent("validationsError", req, {errors, data: query});
+        return sendJson(res, 400, {success: false, error: error.join("; ")});
+      }
+      const wanted = query.completed === "true";
+      filters.completed = wanted;
+      result = result.filter((t) => t.completed === wanted);
+    }
+
+    this._emitEvent("todoListed", req, {
+      todos: result,
+      count: result.length,
+      filters,
+    });
+    sendJson(res, 200, { success: true, data: result, count: result.length });
+  }
+
+
+
+  _handleGet(erq, res, id){
+    const todo = this.todos.find((t) => t.id === id);
+
+    if(!todo){
+      this._emitEvent("todoNotFound", req, {todoId: id, opration: "GET"});
+      return sendJson(res, 404, {success: false, error: "Todo not found"});
+    }
+
+    this._emitEvent("todoViewed", req, {todo});
+    sendJson(res, 200, {success: true, data: todo});
   }
 
 
