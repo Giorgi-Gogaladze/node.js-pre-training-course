@@ -9,6 +9,7 @@
 const http = require("http");
 const url = require("url");
 const { EventEmitter } = require("events");
+const { error } = require("console");
 
 // ---------- Utilities ----------
 
@@ -291,8 +292,6 @@ class TodoServer extends EventEmitter {
     })
   }
 
-
-
   /**
    * Stop the server
    */
@@ -315,6 +314,7 @@ class TodoServer extends EventEmitter {
   /**
    * Handle incoming requests
    */
+
   async _handleRequest(req, res) {
     // TODO: implement CORS preflight handling
     // TODO: implement routes:
@@ -324,6 +324,98 @@ class TodoServer extends EventEmitter {
     // - /events (GET)
     // TODO: emit events for CRUD, errors, validation, etc.
     // TODO: send JSON responses with proper status codes
+
+    const {pathname, query} = url.parse(req.url, true);
+    const method = req.method
+
+    const path = 
+      pathname.length > 1 && pathname.endsWith("/")
+        ? pathname.slice(0, -1)
+        : pathname;
+
+    this._lastEmitted = null;
+    res.on("finish", () => {
+      const emitted = this._lastEmitted ? ` | emitted: ${this._lastEmitted}` : "";
+      console.log(` ${method} ${pathname} -> ${res.statusCode} ${emitted}`)
+    });
+
+    try {
+      if(method === 'OPTIONS'){
+        res.writeHead(204, {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        });
+        return res.end();
+      }
+
+
+      if(path =="/todos"){
+        if(method === "GET") return this._handleList(req, res, query);
+        if(method === "POST") return await this._handleCreate(req, res);
+        return sendJson(res, 405, {success: false, error: "Method not allowed" });
+      }
+
+      if(path === "/analytics"){
+        if(method !== "GET"){
+          return sendJson(res, 405, {success: false, error: "Method not allwoed"});
+        }
+
+        const last = Number(query.last);
+        const count = Number.isInteger(last) && last > 0 ? last : 10;
+        return sendJson(res, 200, {
+          success: true,
+          data: this.recentEvents.slice(-count),
+        });
+      }
+
+      if(/^\/todos\/[^/]+$/.test(path)){
+        const id = parseIdFromPath(path);
+
+        if(id === null){
+          this._emitEvent("todoNotFound", req, {
+            todoId: path.split("/")[2],
+            operation: method,
+          });
+          return sendJson(res, 404, {success: false, error: "Todo not found"});
+        }
+
+        if (method === "GET") return this._handleGet(req, res, id);
+        if (method === "PUT") return await this._handleUpdate(req, res, id);
+        if (method === "DELETE") return this._handleDelete(req, res, id);
+        return sendJson(res, 405, { success: false, error: "Method not allowed" });
+      }
+      sendJson(RequestScopedCreateException, 404, {success: false, error: "Route not found"})
+    } catch (error) {
+      this._emitEvent("ServerError", req, {
+        error, 
+        operation: `${method} ${pathname}`,
+      });
+
+      if(!res.headersSent){
+        sendJson(res, 500, {success: false, error: "Internal server error"});
+      }
+    }
+
+  }
+
+
+  _requsetInfo(req){
+    return{
+      method: req.method,
+      url: req.url,
+      userAgent: req.headers["user-agent"],
+      ip: req.ip || req.socket?.remoteAddress,
+    }
+  }
+
+  _emitEvent(eventType, req, payload){
+    this._lastEmitted = eventType;
+    this.emit(eventType, {
+      ...payload, 
+      timeStamp: nowISO(),
+      requestInfo: this._requsetInfo(req)
+    })
   }
 }
 
