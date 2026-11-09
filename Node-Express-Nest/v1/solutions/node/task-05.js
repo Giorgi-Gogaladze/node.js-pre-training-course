@@ -446,6 +446,87 @@ class TodoServer extends EventEmitter {
     }
   }
 
+
+  async _handleCreate(req, res){
+    let body;
+    try {
+      body = await parseBody(req);
+    } catch (error) {
+       this._emitEvent("validationError", req, {
+        errors: [error.message],
+        data: null,
+      });
+      return sendJson(res, 400, { success: false, error: error.message });
+    }
+
+    const { errors, values } = validateTodoPayload(body, true);
+    if (errors.length > 0) {
+      this._emitEvent("validationError", req, { errors, data: body });
+      return sendJson(res, 400, { success: false, error: errors.join("; ") });
+    }
+
+    const now = nowISO();
+    const todo = {
+      id: this.nextId++,
+      ...values,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.todos.push(todo);
+
+    this._emitEvent("todoCreated", req, { todo });
+    sendJson(res, 201, { success: true, data: todo });    
+}
+
+
+  async _handleUpdate(req, res, id) {
+    const todo = this.todos.find((t) => t.id === id);
+    if (!todo) {
+      this._emitEvent("todoNotFound", req, { todoId: id, operation: "PUT" });
+      return sendJson(res, 404, { success: false, error: "Todo not found" });
+    }
+
+    let body;
+    try {
+      body = await parseBody(req);
+    } catch (error) {
+      this._emitEvent("validationError", req, {
+        errors: [error.message],
+        data: null,
+      });
+      return sendJson(res, 400, { success: false, error: error.message });
+    }
+
+    const { errors, values } = validateTodoPayload(body, false);
+    if (errors.length > 0) {
+      this._emitEvent("validationError", req, { errors, data: body });
+      return sendJson(res, 400, { success: false, error: errors.join("; ") });
+    }
+
+    const oldTodo = { ...todo };
+
+    const changes = Object.keys(values).filter((key) => values[key] !== todo[key]);
+
+    Object.assign(todo, values); 
+    todo.updatedAt = nowISO();
+
+    this._emitEvent("todoUpdated", req, { oldTodo, newTodo: todo, changes });
+    sendJson(res, 200, { success: true, data: todo });
+}
+
+  _handleDelete(req, res, id){
+    const index = this.todos.findIndex((t) => t.id === id);
+    if(index === -1){
+      this._emitEvent("todoNotFound", req, {todoId:id, operation: "DELETE"});
+      return sendJson(res, 404, {success: false, error: "Todo not found"});
+    }
+
+    const [todo] = this.todo.splice(index, 1);
+    this._emitEvent("todoDeleted", req, {todo});
+    sendJson(res, 200, {success: true, message: "todo deleted successfully"})
+  }
+
+
   _emitEvent(eventType, req, payload){
     this._lastEmitted = eventType;
     this.emit(eventType, {
