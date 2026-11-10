@@ -1,17 +1,7 @@
-/**
- * task-05.js
- * Extend your Task 04 server by adding EventEmitter functionality,
- * logging, analytics, and new endpoints.
- *
- * Implement all TODOs below.
- */
-
 const http = require("http");
 const url = require("url");
 const { EventEmitter } = require("events");
-const { error } = require("console");
 
-// ---------- Utilities ----------
 
 function sendJson(res, status, body) {
   const data = JSON.stringify(body);
@@ -165,7 +155,7 @@ function validateTodoPayload(payload, isCreate = false) {
   // - completed: optional, boolean (default false)
 
   if(payload === null || typeof payload !== "object" || Array.isArray(payload)){
-    return {errors: ['REquest body must be a json object'], values: out};
+    return {errors: ['Request body must be a json object'], values: out};
   }
 
   if(payload.title === undefined){
@@ -300,13 +290,10 @@ class TodoServer extends EventEmitter {
 
     return new Promise((resolve, reject) => {
       this.server.close((error) => {
-        if(typeof this.server.closeAllConnections === "function"){
-          this.server.closeAllConnections();
-        }
         this.server = null;
-        if(error) return reject(error);
-        resolve();
-      })
+        error ? reject(error) : resolve();
+      });
+      this.server.closeAllConnections?.();
     })
 
   }
@@ -350,7 +337,7 @@ class TodoServer extends EventEmitter {
       }
 
 
-      if(path =="/todos"){
+      if(path ==="/todos"){
         if(method === "GET") return this._handleList(req, res, query);
         if(method === "POST") return await this._handleCreate(req, res);
         return sendJson(res, 405, {success: false, error: "Method not allowed" });
@@ -360,14 +347,20 @@ class TodoServer extends EventEmitter {
         if(method !== "GET"){
           return sendJson(res, 405, {success: false, error: "Method not allwoed"});
         }
+        return sendJson(res, 200, {success: true, data: this.analytics.getStats()});
+      };
 
+      if(path === "/events"){
+        if(method !== "GET"){
+          return sendJson(res, 405, {success: false, error: "Method not allowed"});
+        }
         const last = Number(query.last);
         const count = Number.isInteger(last) && last > 0 ? last : 10;
         return sendJson(res, 200, {
           success: true,
           data: this.recentEvents.slice(-count),
         });
-      }
+      }  
 
       if(/^\/todos\/[^/]+$/.test(path)){
         const id = parseIdFromPath(path);
@@ -385,9 +378,9 @@ class TodoServer extends EventEmitter {
         if (method === "DELETE") return this._handleDelete(req, res, id);
         return sendJson(res, 405, { success: false, error: "Method not allowed" });
       }
-      sendJson(RequestScopedCreateException, 404, {success: false, error: "Route not found"})
+      sendJson(res, 404, {success: false, error: "Route not found"})
     } catch (error) {
-      this._emitEvent("ServerError", req, {
+      this._emitEvent("serverError", req, {
         error, 
         operation: `${method} ${pathname}`,
       });
@@ -406,8 +399,8 @@ class TodoServer extends EventEmitter {
     if(query.completed !== undefined){
       if(query.completed !== "true" && query.completed !== "false"){
         const errors = ["Query parameter 'completed' muts  be 'true' or 'false'"];
-        this._emitEvent("validationsError", req, {errors, data: query});
-        return sendJson(res, 400, {success: false, error: error.join("; ")});
+        this._emitEvent("validationError", req, {errors, data: query});
+        return sendJson(res, 400, {success: false, error: errors.join("; ")});
       }
       const wanted = query.completed === "true";
       filters.completed = wanted;
@@ -424,11 +417,11 @@ class TodoServer extends EventEmitter {
 
 
 
-  _handleGet(erq, res, id){
+  _handleGet(req, res, id){
     const todo = this.todos.find((t) => t.id === id);
 
     if(!todo){
-      this._emitEvent("todoNotFound", req, {todoId: id, opration: "GET"});
+      this._emitEvent("todoNotFound", req, {todoId: id, operation: "GET"});
       return sendJson(res, 404, {success: false, error: "Todo not found"});
     }
 
@@ -437,7 +430,7 @@ class TodoServer extends EventEmitter {
   }
 
 
-  _requsetInfo(req){
+  _requestInfo(req){
     return{
       method: req.method,
       url: req.url,
@@ -521,7 +514,7 @@ class TodoServer extends EventEmitter {
       return sendJson(res, 404, {success: false, error: "Todo not found"});
     }
 
-    const [todo] = this.todo.splice(index, 1);
+    const [todo] = this.todos.splice(index, 1);
     this._emitEvent("todoDeleted", req, {todo});
     sendJson(res, 200, {success: true, message: "todo deleted successfully"})
   }
@@ -531,11 +524,18 @@ class TodoServer extends EventEmitter {
     this._lastEmitted = eventType;
     this.emit(eventType, {
       ...payload, 
-      timeStamp: nowISO(),
-      requestInfo: this._requsetInfo(req)
+      timestamp: nowISO(),
+      requestInfo: this._requestInfo(req)
     })
   }
 }
 
 module.exports = { TodoServer };
 
+if(require.main === module){
+  const server = new TodoServer(3000);
+  server.start().catch((error) => {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  });
+}
