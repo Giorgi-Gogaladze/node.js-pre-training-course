@@ -1,0 +1,18 @@
+1| description of the implementation
+
+-csv stream processing: builds a modular stream pipeline using node.js transform streams to parse, clean, and write csv files efficiently without memory overhead
+-core classes:
+--csvparser: handles chunk buffering, line splitting, header extraction, and custom quote parsing
+--datatransformer: sanitizes and formats records using dedicated helper functions (names, emails, phones, dates, cities)
+--csvwriter: serializes javascript objects back to csv text with proper escaping
+--pipeline: connects streams cleanly using stream/promises pipeline for reliable error handling
+
+2| instructions and files
+
+instructions to run:
+-cd solutions/node/
+-node task-02.j
+-source files
+-solutions/node/task-02.js
+-data/users.csv
+-data/users_transformed.csv
