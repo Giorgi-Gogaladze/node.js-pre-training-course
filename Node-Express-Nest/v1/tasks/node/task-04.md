@@ -197,3 +197,4 @@ After completing all previous steps, you must document your work in the file `so
 - Create HTML client interface
 - Add request validation middleware
 - Support for OPTIONS method (CORS preflight)
+

@@ -1,0 +1,26 @@
+1| brief description of the implementation
+
+- built a node.js http rest API server "todoServer" class utilizing only core modules (`http`, `url`).
+- implemented asynchronous json request body parsing using native streams with size limit safety checks.
+- developed a robust url path parameters parser (`parsePathParams`) to handle dynamic routes like `/todos/:id`.
+- created structured input validation `validateTodo` adhering to strict business logic rules (title, description, completed status).
+- supported full CRUD operations in-memory with sample data initialization, proper http status codes (200, 201, 204, 400, 404, 405, 500), and CORS preflight handling.
+
+2| instruciton to run
+
+- start the server directly:
+  node task-04.js
+- run automated tests:
+  npx jest solutions/node/task-04-test.js
+
+
+3 |  implementation and mehtods
+- `parseBody(req)`: Asynchronously streams and parses incoming JSON payload.
+- `parsePathParams(pattern, path)`: Extracts route parameters (e.g., `:id`) dynamically.
+- `sendResponse(res, statusCode, data)`: Handles uniform JSON responses and CORS headers.
+- `validateTodo(todoData, isUpdate)`: Validates payload constraints for creation and updates.
+- `TodoServer` Class:
+- `initializeSampleData()`: Seeds initial mock data with timestamps and IDs.
+- `start()`: Initializes HTTP server on port 3000 with error and connection listeners.
+- `handleRequest(req, res)`: Central routing engine for all REST endpoints (`/todos`, `/todos/:id`, `OPTIONS`).
+- CRUD Handlers: `getAllTodos`, `getTodoById`, `createTodo`, `updateTodo`, `deleteTodo`.
