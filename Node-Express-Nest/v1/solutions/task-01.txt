@@ -1,0 +1,16 @@
+1| description of the implementation
+
+custom event emitter for messaging: builds a pub-sub messaging system by extending node.js eventemitter to manage messages, subscriptions, and active users
+core methods:
+-sendmessage: creates and stores message objects, enforces a max limit of 100 messages, and emits generic and type-specific events
+-user management: handles adding, removing, and tracking active users via a javascript Set with automatic event notifications
+-history & stats: provides history retrieval, history clearing, and system statistics tracking
+-testing block: includes an integrated example usage script to test subscriptions, user events, and message broadcasting
+
+2| instructions and files
+
+instructions to run:
+-cd solutions/node/
+-node task-01.js
+-source file to provide:
+-solutions/node/task-01.js
