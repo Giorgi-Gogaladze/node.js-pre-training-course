@@ -433,7 +433,7 @@ class TodoServer extends EventEmitter {
   _requestInfo(req){
     return{
       method: req.method,
-      url: req.url,
+      url: req.url, 
       userAgent: req.headers["user-agent"],
       ip: req.ip || req.socket?.remoteAddress,
     }

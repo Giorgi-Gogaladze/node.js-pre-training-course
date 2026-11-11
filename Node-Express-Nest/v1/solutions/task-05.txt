@@ -1,0 +1,28 @@
+1| description of the event system
+-built using node.js with a built-in eventemitter clss, where  todoService extends teh eventemitter . 
+-key crud operations: (create, read, update, delete), listing, validation errors and server exceptions emit specific events(todocreated, todoupdated, tododeleted, validaitonError, serverError).
+-an internal helper _emitevent (eventtype, rerq, paylaod) enriches every emitted event object with a precise ISO timestapm and client requesst metadata (reqInfo, url, userAgent, IP address).
+-a rolling event history log that automatically  stores the last 100 emitted events in memory, which can be retrieved via the /events endpoint.
+
+
+2| analytics and loggings
+--loggings
+    -listens to all server events and prints structured loggings
+--analytics
+    -tracks comulative counters for total creations, updates, deletes and views, and errors.
+    -implementing daily aggregation systme named _bumpDaily, using date key  to track metrics like, how many: created, updated, deleted, viewed that day.
+    -exposed publicly  through the "getStats()" method and served via the  /analytics  http endpoint
+
+3|
+- start the server directly:
+  node solutions/node/task-05.js
+- run automated tests:
+  node solutions/node/task-05-test.js
+--api enpoints:
+    GET /todos - list all todos (supports ?completed=true/false filters)
+    POST /todos - create a new todo
+    GET /todos/:id - get a specific todo by id
+    PUT /todos/:id - update existing todo
+    DELETE /todos/:id - delete a todo
+    GET /analytics - view analytics data
+    GET /events?last=10 - view recent event logs (default last 10)
