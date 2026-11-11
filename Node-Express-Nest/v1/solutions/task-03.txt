@@ -1,0 +1,22 @@
+1| description of the implementation
+
+-event loop analysis: outlines node.js event loop phases like timers, pending callbacks, poll, check, and close callbacks, along with microtask versus macrotask execution priorities
+-asynchronous code refactoring & debugging:
+-fixracecondition: resolves concurrent file reading and writing race conditions using promise.all with enoent error handling and auto-creation fallback
+-fixcallbackhell: transforms nested callback code into clean async/await blocks with parallel json parsing and file existence checks
+-fixmixedasync: unifies mixed promises and callbacks into a robust async/await workflow with file verification
+-comprehensive demonstration: simulates and logs core event loop phases and socket lifecycle events using colored console output
+
+2| instructions and source files
+
+instructions to run:
+navigate to the solutions directory: cd solutions/node/
+execute the script directly: node task-03.js
+key functions included:
+-analyzeeventloop()
+-predictexecutionorder()
+-fixracecondition()
+-fixcallbackhell()
+-fixmixedasync()
+-demonstrateeventloop()
+-createtestfiles()
