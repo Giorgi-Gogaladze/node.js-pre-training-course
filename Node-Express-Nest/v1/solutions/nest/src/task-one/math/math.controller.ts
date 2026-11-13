@@ -1,6 +1,6 @@
 import { BadRequestException, Controller, Get, Query } from "@nestjs/common";
 import { MathService } from "./math.service";
-import { LoggerService } from "../../logger/logger.service";
+import { LoggerService } from "../logger/logger.service";
 
 
 @Controller("math")
