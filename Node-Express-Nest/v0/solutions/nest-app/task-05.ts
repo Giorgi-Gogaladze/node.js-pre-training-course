@@ -1,6 +1,6 @@
 // NestJS Controller for /todos
 import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
-import { TodosService } from './task-06';
+import { TodosService } from '../task-06';
 import { ToDoDto } from './task-09';
 
 @Controller('todos')
