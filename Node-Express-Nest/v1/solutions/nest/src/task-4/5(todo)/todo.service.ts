@@ -2,53 +2,36 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Todo } from './interfaces/todo.interface';
 import { CreateTodoDto } from './dtos/create-todo.dto';
 import { UpdateTodoDto } from './dtos/update-todo.dto';
+import { TodoRepository } from './todo.repository';
+import { TodoEntity } from './todo.entity';
 
 @Injectable()
 export class TodoService {
-    private todos: Todo[] = [];
-    private nextId = 1;
+    constructor(private readonly repo: TodoRepository){}
 
-    findAll(completed?: boolean): Todo[]{
-        if(completed === undefined) return this.todos;
-        return this.todos.filter((t) => t.completed === completed);
+    async findAll(completed?: boolean): Promise<TodoEntity[]> {
+        const models = await this.repo.findAll(completed);
+        return models.map(TodoEntity.fromModel);
     }
 
-    findOne(id: number): Todo {
-        const todo = this.todos.find((t) => t.id === id);
-        if(!todo){
-            throw new NotFoundException(`Todo with id ${id} not found`);
-        }
-        return todo;
+    async findOne(id: number): Promise<TodoEntity> {
+        const model = await this.repo.findById(id);
+        if(!model) throw new NotFoundException('todo not found');
+        return TodoEntity.fromModel(model);
     }
 
-    create(dto: CreateTodoDto): Todo {
-        const now = new Date();
-        const todo: Todo = {
-            id: this.nextId++,
-            title: dto.title.trim(),
-            description: dto.description ?? '',
-            completed: dto.completed ?? false,
-            createdAt: now,
-            updatedAt: now,
-        };
-        this.todos.push(todo);
-        return todo;
+    async create(dto: CreateTodoDto): Promise<TodoEntity> {
+        return TodoEntity.fromModel(await this.repo.create(dto));
     }
 
-    update(id: number, dto: UpdateTodoDto): Todo {
-        const todo = this.findOne(id);
-
-        if(dto.title !== undefined) todo.title = dto.title.trim();
-        if(dto.description !== undefined) todo.description = dto.description;
-        if(dto.completed !== undefined) todo.completed = dto.completed;
-        todo.updatedAt = new Date();
-
-        return todo;
+    async update(id: number, dto: UpdateTodoDto): Promise<TodoEntity> {
+        await this.findOne(id);
+        return TodoEntity.fromModel(await this.repo.update(id, dto));
     }
 
-    remove(id: number): {message: string}{
-        const todo = this.findOne(id);
-        this.todos = this.todos.filter((t) => t.id !== todo.id);
-        return {message: "todo removed successfully"}
+    async remove(id: number): Promise<{ message: string }>{
+        await this.findOne(id);
+        await this.repo.delete(id);
+        return { message: 'todo deleted successfully'}
     }
 }

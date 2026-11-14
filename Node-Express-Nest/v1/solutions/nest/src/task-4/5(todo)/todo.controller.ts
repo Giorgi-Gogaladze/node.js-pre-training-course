@@ -8,7 +8,7 @@ export class TodoController {
     constructor(private readonly todoService: TodoService){}
 
     @Get()
-    findAll(@Query('completed') completed?: string){
+    async findAll(@Query('completed') completed?: string){
         let filter: boolean | undefined;
         if(completed !== undefined){
             if(completed !== "true" && completed !== "false"){
@@ -16,27 +16,27 @@ export class TodoController {
             }
             filter = completed === "true";
         };
-        const data = this.todoService.findAll(filter);
+        const data = await this.todoService.findAll(filter);
         return {success: true, data, count: data.length};
     }
 
     @Get(':id')
-    findOne(@Param('id', ParseIntPipe) id: number) {
-        return { success: true, data: this.todoService.findOne(id) };
+    async findOne(@Param('id', ParseIntPipe) id: number) {
+        return { success: true, data: await this.todoService.findOne(id) };
     }
 
     @Post()
-    create(@Body() dto: CreateTodoDto) {
-        return { success: true, data: this.todoService.create(dto) };
+    async create(@Body() dto: CreateTodoDto) {
+        return { success: true, data: await this.todoService.create(dto) };
     }
 
     @Put(':id')
-    update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateTodoDto) {
-        return { success: true, data: this.todoService.update(id, dto) };
+    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateTodoDto) {
+        return { success: true, data:await this.todoService.update(id, dto) };
     }
 
     @Delete(':id')
-    remove(@Param('id', ParseIntPipe) id: number) {
-        return { success: true, ...this.todoService.remove(id) };
+    async remove(@Param('id', ParseIntPipe) id: number) {
+        return { success: true, ...(await this.todoService.remove(id)) };
     }
 }
