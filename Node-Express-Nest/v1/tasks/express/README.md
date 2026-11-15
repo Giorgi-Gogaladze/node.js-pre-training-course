@@ -32,3 +32,4 @@
 5. **Task 5: Request Logging and Metrics Middleware**
    Implement a middleware to log request details and track basic stats (e.g., total requests, average response time).
    Expose `/metrics` endpoint to view them.
+
