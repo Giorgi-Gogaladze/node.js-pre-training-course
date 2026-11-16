@@ -1,4 +1,8 @@
 function errorHandler(err, req, res, next){
+    if (err.type === "entity.parse.failed") {
+        err.status = 400;
+        err.message = "invalid JSON";
+    }
     const status = err.status || 500;
 
     const message = status === 500 ? "iinternal server error" : err.message;

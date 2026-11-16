@@ -1,10 +1,9 @@
 const express = require("express");
 const todoService = require("./todoService");
-const vlaidateTodo = require("./validateTodo");
+const validateTodo = require("./validateTodo");
 const HttpError = require("../task-two/routes/HttpError");
 
 const router = express.Router();
-
 
 
 router.param("id", (req, res, next, value) => {
@@ -25,13 +24,13 @@ router.get("/", (req, res) => {
     }
     filter = completed === "true";
   }
-  const data = todoService.findAll(filter);
+  const data = todoService.getAll(filter);
   res.json({ success: true, data, count: data.length });
 });
 
 
 router.get("/:id", (req, res) => {
-  res.json({ success: true, data: todoService.findById(req.todoId) });
+  res.json({ success: true, data: todoService.getById(req.todoId) });
 });
 
 
@@ -43,7 +42,7 @@ router.post("/", validateTodo({ isCreate: true }), (req, res) => {
 
 
 router.put("/:id", validateTodo({ isCreate: false }), (req, res) => {
-  const todo = todoService.update(req.todoId, req.body);
+  const todo = todoService.updateTodo(req.todoId, req.body);
   res.json({ success: true, data: todo });
 });
 
