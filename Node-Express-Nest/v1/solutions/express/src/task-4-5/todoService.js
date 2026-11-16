@@ -45,3 +45,5 @@ function remove(id){
     getById(id);
     todos = todos.filter((t) => t.id !== id);
 }
+
+module.exports = { create, getAll, getById, remove, updateTodo}
