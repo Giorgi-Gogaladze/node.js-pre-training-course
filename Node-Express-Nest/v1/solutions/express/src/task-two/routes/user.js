@@ -6,13 +6,11 @@ router.get('/:id', (req, res)  => {
     const {active} = req.query;
 
     if(!/^\d+$/.test(id)){
-        return res.status(400).json({error: "id must be a number"});
+        throw new HttpError(400, "id must be a number");
     }
 
     if(active !== undefined && active !== "true" && active !== "false"){
-        return res 
-            .status(400)
-            .json({ error: "active must be 'true' or 'false'"});
+        throw new HttpError(400, "active must bea 'true' or 'false'");
     }
 
     let status = 'found';
