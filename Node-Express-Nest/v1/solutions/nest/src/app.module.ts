@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { CacheModule } from '@nestjs/cache-manager';
+import { createKeyv } from '@keyv/redis';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MathModule } from './task-one/math/math.module';
@@ -9,7 +11,18 @@ import { TodoModule } from './task-4/5(todo)/todo.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
-  imports: [MathModule, LoggerModule, AuditModule, LifecycleModule, TodoModule, PrismaModule],
+  imports: [
+    CacheModule.register({
+      isGlobal: true,
+      stores: [createKeyv(process.env.REDIS_URL ?? 'redis://localhost:6379')],
+    }),
+    MathModule,
+    LoggerModule,
+    AuditModule,
+    LifecycleModule,
+    TodoModule,
+    PrismaModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
