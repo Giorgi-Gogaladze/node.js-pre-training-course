@@ -1,0 +1,1 @@
+comparing both container sizes and getting big difference, single stage gets 1.74GB and multi-stage gets 259MB
