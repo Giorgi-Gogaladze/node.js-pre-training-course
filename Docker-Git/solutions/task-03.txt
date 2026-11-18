@@ -1,0 +1,31 @@
+already don in node-express-nest/v1/solutions/nest/docker-compose.yml
+
+here is the whole container with database  and redis for caching:
+version: '3.8'
+
+services: 
+  db: 
+    image: postgres:16
+    container_name: todo-postgres-innowise
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: todo  -----environments for connecting to the database.
+      POSTGRES_PASSWORD: todo
+      POSTGRES_DB: tododb  
+    ports: 
+      - "5432:5432"  -----these are the ports that each container uses, in that case teh postgres used 5432 port, but redis uses 6379.
+    volumes: 
+      - pgdata:/var/lib/postgresql/data   ------volumeas are the pathes where the data will be saved
+
+  redis: 
+    image: redis:7-alpine
+    container_name: todo-redis-innowise
+    restart: unless-stopped
+    ports: 
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    
+volumes: 
+  pgdata:
+  redisdata:

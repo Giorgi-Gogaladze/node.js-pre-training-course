@@ -1,0 +1,9 @@
+these are the commands that would probably be needed while merging and resolving conflicts:
+
+<> git merge branch-name ---merging branch where will be conflicted code
+<> git status ---checking in which files tehre are the conflicts
+then in the vscode or any other environment it shows the conflicted code, one is our code and teh second is the conflicted that came by merging, then wehoose which code to stay and which to be removed.
+after resolving the conflicts:
+<> git add . --- we are adding everhy cahnges, making ready to be commited
+<> git commit -m "and the commit here" ---giving commit the name
+idk, basically that's it
