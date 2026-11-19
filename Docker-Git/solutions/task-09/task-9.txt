@@ -1,0 +1,252 @@
+<>first downloading images to the doccker engine stroage:
+    docker pull nginx:alpine
+    docker pull redis:7-alpine
+    docker pull node:24-alpine
+
+
+<> listing all images: 
+    docker image ls:
+
+    result:
+            PS C:\Users\user\node-course\docker-git\solutions> docker image ls
+            REPOSITORY                 TAG                   IMAGE ID       CREATED         SIZE
+            task-7-api                 latest                6be0cf35c27e   3 hours ago     255MB
+            nginx                      alpine                0563c36f94a6   21 hours ago    93.6MB
+            task5-multi                latest                3420298a1259   25 hours ago    259MB
+            task5-single               latest                20a22420a798   26 hours ago    1.74GB
+            node                       24-alpine             116b800c3754   7 days ago      244MB
+            redis                      7-alpine              7f7d30b7fdd0   9 days ago      58MB
+            pgvector/pgvector          pg16                  ccc6e83d6e35   3 months ago    621MB
+            dpage/pgadmin4             latest                40fa840c5bb7   5 months ago    757MB
+            postgres                   16-alpine             e013e867e712   5 months ago    419MB
+            postgres                   17-alpine             6f30057d31f5   8 months ago    399MB
+            <none>                     <none>                8b81dd37ff02   8 months ago    60.7MB
+            postgres                   15-alpine             1d1095b05031   9 months ago    392MB
+            rabbitmq                   3-management-alpine   606d8c0d6b3c   11 months ago   275MB
+            rabbitmq                   3-management          e582c0bc7766   11 months ago   389MB
+            postgres                   13                    4689940c6838   12 months ago   618MB
+            postgres                   16                    e28a3921cd21   12 months ago   635MB
+            docker/welcome-to-docker   latest                c4d56c24da4f   15 months ago   22.2MB
+
+<> inspecting each docker image:  docker image inspect <imge name>;
+
+<>giving the custom tag: docker tag <iamgename> <tagname>
+
+<> creating tar file: docker save -o task-09/nginx-image.tar nginx:alpine
+<> downloading iamge form tar file: docker load -i task-09/nginx-image.tar
+     result: Loaded image: nginx:alpine
+
+<> removing image: docker rmi nginx:my-custom-tag (our choosen tag)
+
+
+
+
+<> running an Nginx container in detached mode with port mapping:
+
+docker run -d --name task09-nginx -p 8080:80 nginx:alpine
+
+URL:
+    http://localhost:8080
+
+<> running a Redis container with a custom name and restart policy:
+
+docker run -d --name task09-redis --restart unless-stopped redis:7-alpine
+
+<> creating a Node.js container without starting it:
+
+docker create --name task09-node node:24-alpine sh -c "while true; do sleep 3600; done"
+
+<> listing all containers:
+
+docker ps -a
+
+<> starting the Node.js container manually:
+
+docker start task09-node
+
+<> listing running containers:
+
+docker ps
+
+<> executing commands inside the Nginx container:
+
+docker exec -it task09-nginx sh
+
+inside container:
+    ls
+    exit
+
+<> opening Redis CLI inside the Redis container:
+
+docker exec -it task09-redis redis-cli
+
+Redis commands:
+    PING
+    SET name Giorgi
+    GET name
+    exit
+
+expected result:
+    PONG
+    OK
+    "Giorgi"
+
+<> creating a file on the host machine:
+
+Set-Content -Path hello.txt -Value "Hello from Windows!"
+
+<> copying the file from host to Nginx container:
+
+docker cp hello.txt task09-nginx:/tmp/hello.txt
+
+<> checking the copied file:
+
+docker exec task09-nginx cat /tmp/hello.txt
+
+<> copying a file from the Nginx container to host:
+
+docker cp task09-nginx:/etc/nginx/nginx.conf ./nginx.conf
+
+
+
+
+
+
+
+
+
+
+
+
+3. Monitoring and Troubleshooting
+
+<> monitoring container resource usage:
+
+docker stats
+
+Shows CPU, memory, network and block I/O usage.
+Press Ctrl + C to stop monitoring.
+
+<> viewing container logs with timestamps:
+
+docker logs --timestamps task09-nginx
+docker logs --timestamps task09-redis
+docker logs --timestamps task09-node
+
+<> viewing the last 20 log entries:
+
+docker logs --tail 20 task09-nginx
+
+<> following container logs in real time:
+
+docker logs -f --timestamps task09-nginx
+
+Press Ctrl + C to stop following logs.
+
+<> inspecting container configuration:
+
+docker inspect task09-nginx
+docker inspect task09-redis
+docker inspect task09-node
+
+<> inspecting container port configuration:
+
+docker inspect task09-nginx --format '{{json .NetworkSettings.Ports}}'
+
+<> inspecting mounted volumes:
+
+docker inspect task09-nginx --format '{{json .Mounts}}'
+
+<> creating a Docker volume:
+
+docker volume create task09-data
+
+<> listing Docker volumes:
+
+docker volume ls
+
+<> inspecting the created volume:
+
+docker volume inspect task09-data
+
+<> running Redis with a persistent volume:
+
+docker run -d --name task09-redis-volume -v task09-data:/data redis:7-alpine redis-server --appendonly yes
+
+<> checking the mounted volume:
+
+docker inspect task09-redis-volume --format '{{json .Mounts}}'
+
+<> creating a custom Docker network:
+
+docker network create task09-network
+
+<> listing Docker networks:
+
+docker network ls
+
+<> connecting Redis to the custom network:
+
+docker network connect task09-network task09-redis
+
+<> connecting Nginx to the custom network:
+
+docker network connect task09-network task09-nginx
+
+<> inspecting the custom network:
+
+docker network inspect task09-network
+
+
+
+
+<> checking Docker disk usage before cleanup:
+
+docker system df
+
+result:
+    [Paste actual output here]
+
+<> stopping all Task 09 containers:
+
+docker stop task09-nginx task09-redis task09-node task09-redis-volume
+
+<> removing Task 09 containers:
+
+docker rm task09-nginx task09-redis task09-node task09-redis-volume
+
+<> removing the created Docker volume:
+
+docker volume rm task09-data
+
+<> removing the created Docker network:
+
+docker network rm task09-network
+
+<> cleaning up unused Docker resources:
+
+docker system prune
+
+<> checking Docker disk usage after cleanup:
+
+docker system df
+
+result:
+    [Paste actual output here]
+
+5. most useful docker commands
+
+<> commands I found most useful:
+
+docker images          - listing available images
+docker image inspect   - inspecting image details
+docker run             - creating and starting containers
+docker exec            - executing commands inside containers
+docker logs            - viewing container logs
+docker stats           - monitoring container resources
+docker inspect         - inspecting container configuration
+docker cp              - copying files between host and containers
+docker volume          - managing persistent storage
+docker network         - managing container networks
+docker system df       - checking Docker disk usage
+docker system prune    - cleaning up unused resources
