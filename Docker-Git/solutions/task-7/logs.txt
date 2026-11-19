@@ -1,0 +1,33 @@
+PS C:\Users\user\node-course\docker-git\solutions\task-7> docker compose logs api
+docker-api  | 
+docker-api  | > docker-git-task-07@1.0.0 start
+docker-api  | > node src/index.js
+docker-api  | 
+docker-api  | API is listening on port 3000
+PS C:\Users\user\node-course\docker-git\solutions\task-7> docker compose logs db 
+todo-doker-git  | 
+todo-doker-git  | PostgreSQL Database directory appears to contain a database; Skipping initialization
+todo-doker-git  | 
+todo-doker-git  | 2026-11-19 10:55:06.143 UTC [1] LOG:  starting PostgreSQL 16.10 (Debian 16.10-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+todo-doker-git  | 2026-11-19 10:55:06.145 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+todo-doker-git  | 2026-11-19 10:55:06.145 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+todo-doker-git  | 2026-11-19 10:55:06.158 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+todo-doker-git  | 2026-11-19 10:55:06.193 UTC [27] LOG:  database system was shut down at 2026-11-19 10:44:29 UTC
+todo-doker-git  | 2026-11-19 10:55:06.252 UTC [1] LOG:  database system is ready to accept connections
+PS C:\Users\user\node-course\docker-git\solutions\task-7> docker compose logs pgadmin   
+todo-pgadmin  | email config is {'CHECK_EMAIL_DELIVERABILITY': False, 'ALLOW_SPECIAL_EMAIL_DOMAINS': [], 'GLOBALLY_DELIVERABLE': True}
+todo-pgadmin  | /venv/lib/python3.14/site-packages/sshtunnel.py:1040: SyntaxWarning: 'return' in a 'finally' block
+todo-pgadmin  |   return (ssh_host,
+todo-pgadmin  | NOTE: Configuring authentication for SERVER mode.
+todo-pgadmin  | 
+todo-pgadmin  | pgAdmin 4 - Application Initialisation
+todo-pgadmin  | ======================================
+todo-pgadmin  | 
+todo-pgadmin  | postfix/postlog: starting the Postfix mail system
+todo-pgadmin  | [2026-11-19 10:55:58 +0000] [1] [INFO] Starting gunicorn 23.0.0
+todo-pgadmin  | [2026-11-19 10:55:58 +0000] [1] [INFO] Listening at: http://[::]:80 (1)
+todo-pgadmin  | [2026-11-19 10:55:58 +0000] [1] [INFO] Using worker: gthread
+todo-pgadmin  | [2026-11-19 10:55:58 +0000] [138] [INFO] Booting worker with pid: 138
+todo-pgadmin  | /venv/lib/python3.14/site-packages/sshtunnel.py:1040: SyntaxWarning: 'return' in a 'finally' block
+todo-pgadmin  |   return (ssh_host,
+PS C:\Users\user\node-course\docker-git\solutions\task-7> 
