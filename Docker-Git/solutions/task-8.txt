@@ -1,0 +1,101 @@
+
+1. Remote configuration
+
+Used command:
+
+git remote -v
+
+This command shows all configured Git remotes and their fetch/push URLs.
+
+Example:
+
+origin   <fork-repository-url> (fetch)
+origin   <fork-repository-url> (push)
+upstream <main-repository-url> (fetch)
+upstream <main-repository-url> (push)
+
+
+2. Feature branch workflow
+
+Create a feature branch:
+
+git switch -c feature/<feature-name>
+
+Check the current branch:
+
+git branch
+
+Make changes and check the status:
+
+git status
+
+Stage changes:
+
+git add .
+
+Create a commit:
+
+git commit -m "feat: add new functionality"
+
+Push the feature branch to the fork:
+
+git push -u origin feature/<feature-name>
+
+After review, synchronize with upstream and merge the feature into the main branch.
+
+Useful commands:
+
+git fetch upstream
+git switch main
+git merge upstream/main
+git switch feature/<feature-name>
+git rebase main
+git push --force-with-lease
+
+
+3. Strategy for handling upstream changes
+
+Before starting or updating a feature, fetch the latest changes from upstream:
+
+git fetch upstream
+
+Update the local main branch:
+
+git switch main
+git merge upstream/main
+
+Then update the feature branch:
+
+git switch feature/<feature-name>
+git rebase main
+
+If the feature branch was already pushed and the rebase changed its history, use:
+
+git push --force-with-lease
+
+This is safer than --force because it checks whether the remote branch has changed unexpectedly.
+
+
+4. Best practices for commit messages
+
+Use clear and descriptive commit messages.
+
+Common prefixes:
+
+feat:     new functionality
+fix:      bug fix
+refactor: code restructuring
+style:    formatting/style changes
+test:     add or update tests
+chore:    maintenance/configuration changes
+docs:     documentation changes
+
+Good examples:
+
+feat: add user authentication
+fix: handle invalid login credentials
+refactor: simplify auth middleware
+test: add authentication tests
+chore: update dependencies
+
+Commits should be small and focused on one logical change. Avoid vague messages such as "update", "changes", or "stuff".
