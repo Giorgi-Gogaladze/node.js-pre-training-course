@@ -3,3 +3,4 @@ need for fake commits:
 chore: update package.json
 fix: fix typo
 feat: add middleware
+test: add authentication tests
