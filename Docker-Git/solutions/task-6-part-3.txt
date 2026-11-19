@@ -1,1 +1,28 @@
-new item for new developer(testing change for rebase)
+new item for new developer(testing change for rebase);
+
+PS C:\Users\user\node-course\docker-git\solutions> git log --oneline --graph --all
+* 6e294bd (feature/merge-comparison) docs(git-task-6): doc rebase and merge comparison
+*   b99432a Merge branch 'feature/user-authentication-before-rebase' into feature/merge-comparison
+|\  
+| * 14fd732 (feature/user-authentication-before-rebase) feat(docker-git task-6): adding prev andnew commit comparison tot hetxt file
+| * fad6373 fake-test(docker-task-6): add authentication tests
+| * 8c0bccb fake-feat(dockeer-task-6): add middleware
+| * 1c0fb48 fake-chore(docker-task-6): squashing  fix type and change package.json commits
+| | * 64bda2d (HEAD -> feature/tasks, feature/user-authentication) feat(docker-git task-6): adding prev andnew commit comparison tot he txt file
+| | * 4f4dd92 fake-test(docker-task-6): add authentication tests
+| | * efdfb4d fake-feat(dockeer-task-6): add middleware
+| | * e59ba3f fake-chore(docker-task-6): squashing  fix type and change package.json commits
+| | * 76b2d6d fake-feat(docker-task-6): creating ake commit for sisth task: { feat: add auth.js}
+| |/  
+|/|   
+* | b15a484 feat: add another devs changes
+| | *   718e845 (refs/stash) WIP on feature/user-authentication: 09ce312 fake-test(docker-task-6): add authentication tests
+| | |\  
+| | | * b228fdd index on feature/user-authentication: 09ce312 fake-test(docker-task-6): add authentication tests
+| | |/  
+| | * 09ce312 fake-test(docker-task-6): add authentication tests
+| | * 484115c fake-feat(dockeer-task-6): add middleware
+| | * 191516a fake-chore(docker-task-6):  update package.json
+| |/  
+| * 89e0fd5 fake-feat(docker-task-6): creating ake commit for sisth task: { feat: add auth.js}
+|/  
