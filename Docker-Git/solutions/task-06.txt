@@ -4,3 +4,19 @@ chore: update package.json
 fix: fix typo
 feat: add middleware
 test: add authentication tests
+
+
+before squashing and remaning commit: {
+fad6373 (HEAD -> feature/user-authentication) fake-test(docker-task-6): add authentication tests
+8c0bccb fake-feat(dockeer-task-6): add middleware
+3h342e8 fake-feat(dockeer-task-6): fix type
+1c0fb48 fake-chore(docker-task-6): change package.json
+89e0fd5 fake-feat(docker-task-6): creating ake commit for sisth task: { feat: add auth.js}
+} 
+
+afteh it: {
+fad6373 (HEAD -> feature/user-authentication) fake-test(docker-task-6): add authentication tests
+8c0bccb fake-feat(dockeer-task-6): add middleware
+1c0fb48 fake-chore(docker-task-6): squashing  fix type and change package.json commits
+89e0fd5 fake-feat(docker-task-6): creating ake commit for sisth task: { feat: add auth.js}
+}
