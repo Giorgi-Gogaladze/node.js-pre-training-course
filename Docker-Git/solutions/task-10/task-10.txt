@@ -1,0 +1,161 @@
+sometimes we need several container to be able to 'see' eachotehr and have communications, in that case we can create  custom bridge network. docker compose can do all that connects every contaienr to  every other onesm
+but sometimes we need better management, for exmaple we dont need all contianer to have access to all the other ocntainers, so we can divide them into separate networks and if eneeded connect them(whciever we want) to 
+eachother.
+
+for that we can create  sucotm brige with command:
+  docker network create app-network
+
+that command then creates new  docker network  which i would give an IP address range and gateway:
+  docker network create --subnet 172.30.0.0/24 --gatewat 172.30.0.2 custom-subnet-net
+  the gateway will occupye 172.30.0.2 and the rest(3, 4, 5, 6) we can giv eth eother containers
+
+then we can run the :
+  docker network ls ___ to see network details list and we got the result:
+    NETWORK ID     NAME                            DRIVER    SCOPE
+    c80a95673d98   app-network                     bridge    local
+
+we can see detailed info of specific network with command:
+    docker network inspect app-network
+
+now we test, if two containers in the same network can be connected:
+    docker run -d --name c1 --network app-network alpine sleep 3600
+    docker run -d --name c2 --network app-network alpine sleep 3600
+
+  docker run _ created conteiner and runs interface
+  --name c1 __container name
+  --network app-network __ conntets in the app-network network
+  apline __ lightweight  docker image
+  sleep 3600 leaves the container alive for an hour.
+
+checking if c1 can connct to c2:
+   docker exec c1 ping -c 3 c2
+
+   --in c1 conteiner check network connection, send 3 request(packet) and reciever contenr name(c2)
+   result: 
+        PS C:\Users\user\node-course> docker exec c1 ping -c 3 c2
+        PING c2 (172.25.0.3): 56 data bytes
+        64 bytes from 172.25.0.3: seq=0 ttl=64 time=1.646 ms
+        64 bytes from 172.25.0.3: seq=1 ttl=64 time=0.169 ms
+        64 bytes from 172.25.0.3: seq=2 ttl=64 time=0.094 ms
+
+        --- c2 ping statistics ---
+        3 packets transmitted, 3 packets received, 0% packet loss
+        round-trip min/avg/max = 0.094/0.636/1.646 ms
+        PS C:\Users\user\node-course> 
+
+        so we found pi address of c2, c2 recieved requet and returned response to c1
+
+
+2||  multipel container communication
+
+creating docker  volume:
+    docker vlume create mongo-data 
+
+runing the docker mongo container:
+  docker run -d --name mongo --network app-network ^
+  -v mongo-data:/data/db `
+  -e MONGO_INITDB_ROOT_USERNAME=admin `
+  -e MONGO_INITDB_ROOT_PASSWORD=secret `
+  mongo:7
+
+runing mongo express container:
+    docker run -d --name mongo-express --network app-network -p 8081:8081 `
+    -e ME_CONFIG_MONGODB_URL="mongodb://admin:secret@mongo:27017/" `
+    -e ME_CONFIG_BASICAUTH=false `
+    mongo-express
+
+after creating simple node app, we run to crerate image:
+   docker build -t mongo-app .
+   
+   result: View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/w1y5068ilkbnysk8g8olhx4oj
+
+
+stopping and removeing container:
+   docker run --rm --name node-app --network app-network mongo-app
+
+
+
+
+3|| volumes:
+named vloume
+removing mongo first:
+   docker rm -f mongo     
+
+then testing  how sustianeable is volume:
+    docker run -d --name mongo --network app-network -v mongo-data:/data/db -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=secret mongo:7 docker run --rm --network app-network mongo-app
+
+bind mount for sharing code:
+   docker run --rm --network app-network -v "${PWD}/docker-task10/app:/app" -w /app node:20-alpine node index.js
+
+
+tmpfs temp data in RAM
+    docker run -d --name tmp-demo --tmpfs /scratch alpine sleep 3600
+    docker exec tmp-demo sh -c "echo hello > /scratch/file.txt && cat /scratch/file.txt"
+    docker restart tmp-demo
+    docker exec tmp-demo ls /scratch
+
+    after the reload the /scratch is empty
+
+
+4 || network isolation testing
+
+first create two netwrks a and b:
+    docker network create net-a
+    docker network create net-b
+make sure htey creatd:
+    docker ls
+
+runing containers on separate networks:
+    docker run -d --name a1 --network nat-a alpine sleep 3600
+    docker run -d --name b1 --network nat-b alpine sleep 3600
+
+make sure they run(up status):
+   docker ps:
+   result:
+    PS C:\Users\user\node-course\docker-git\solutions\task-10> docker ps
+    CONTAINER ID   IMAGE     COMMAND        CREATED          STATUS          PORTS     NAMES
+    3fbc98b92f13   alpine    "sleep 3600"   28 seconds ago   Up 27 seconds             b1
+    c83b43fd2b5f   alpine    "sleep 3600"   41 seconds ago   Up 40 seconds             a1
+    PS C:\Users\user\node-course\docker-git\solutions\task-10> 
+
+inspect theposrts:
+    docker network inspect net-a --format "{{range .Containers}}{{.Name}} {{.IPv4Address}}{{end}}"
+      result: a1 172.26.0.2/16
+
+    docker network inspect net-b --format "{{range .Containers}}{{.Name}} {{.IPv4Address}}{{end}}"
+      result: b1 172.27.0.2/16
+
+
+demonstration of the isolation(trying ping for containers that are in different netwroks):
+   docker exec a1 ping -c 2 b1
+       expected putput: ping: bad address 'b1'
+   
+
+make sure that problem is in the network and not inthe ping, so create new container and tun on the same net-a netwrok then trhy to ping with a1:
+    
+    PS C:\Users\user\node-course\docker-git\solutions\task-10> docker run -d --name a3 --network net-a alpine sleep 3600 
+    a0ff7ebb09a79aa6a37c9c90ab2a6e8859e80cdad74499132523f7de1d44a6cb
+    PS C:\Users\user\node-course\docker-git\solutions\task-10> docker exec a1 ping -c 2 a3
+    PING a3 (172.26.0.3): 56 data bytes
+    64 bytes from 172.26.0.3: seq=0 ttl=64 time=1.184 ms
+    64 bytes from 172.26.0.3: seq=1 ttl=64 time=0.136 ms
+
+    --- a3 ping statistics ---
+    2 packets transmitted, 2 packets received, 0% packet loss
+    round-trip min/avg/max = 0.136/0.660/1.184 ms
+    PS C:\Users\user\node-course\docker-git\solutions\task-10> 
+
+
+connecting container to two networks:
+    docker network connect net-b a1
+  
+  now check:
+    docker exec a1 ping -c 2 b1
+    result(success): 
+      PING b1 (172.27.0.2): 56 data bytes
+      64 bytes from 172.27.0.2: seq=0 ttl=64 time=0.838 ms
+      64 bytes from 172.27.0.2: seq=1 ttl=64 time=0.068 ms
+
+      --- b1 ping statistics ---
+      2 packets transmitted, 2 packets received, 0% packet loss
+      round-trip min/avg/max = 0.068/0.453/0.838 ms
