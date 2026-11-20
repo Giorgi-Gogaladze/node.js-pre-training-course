@@ -1,0 +1,50 @@
+sometimes we need several container to be able to 'see' eachotehr and have communications, in that case we can create  custom bridge network. docker compose can do all that connects every contaienr to  every other onesm
+but sometimes we need better management, for exmaple we dont need all contianer to have access to all the other ocntainers, so we can divide them into separate networks and if eneeded connect them(whciever we want) to 
+eachother.
+
+for that we can create  sucotm brige with command:
+  docker network create app-network
+
+that command then creates new  docker network  which i would give an IP address range and gateway:
+  docker network create --subnet 172.30.0.0/24 --gatewat 172.30.0.2 custom-subnet-net
+  the gateway will occupye 172.30.0.2 and the rest(3, 4, 5, 6) we can giv eth eother containers
+
+then we can run the :
+  docker network ls ___ to see network details list and we got the result:
+    NETWORK ID     NAME                            DRIVER    SCOPE
+    c80a95673d98   app-network                     bridge    local
+
+we can see detailed info of specific network with command:
+    docker network inspect app-network
+
+now we test, if two containers in the same network can be connected:
+    docker run -d --name c1 --network app-network alpine sleep 3600
+    docker run -d --name c2 --network app-network alpine sleep 3600
+
+  docker run _ created conteiner and runs interface
+  --name c1 __container name
+  --network app-network __ conntets in the app-network network
+  apline __ lightweight  docker image
+  sleep 3600 leaves the container alive for an hour.
+
+checking if c1 can connct to c2:
+   docker exec c1 ping -c 3 c2
+
+   --in c1 conteiner check network connection, send 3 request(packet) and reciever contenr name(c2)
+   result: 
+        PS C:\Users\user\node-course> docker exec c1 ping -c 3 c2
+        PING c2 (172.25.0.3): 56 data bytes
+        64 bytes from 172.25.0.3: seq=0 ttl=64 time=1.646 ms
+        64 bytes from 172.25.0.3: seq=1 ttl=64 time=0.169 ms
+        64 bytes from 172.25.0.3: seq=2 ttl=64 time=0.094 ms
+
+        --- c2 ping statistics ---
+        3 packets transmitted, 3 packets received, 0% packet loss
+        round-trip min/avg/max = 0.094/0.636/1.646 ms
+        PS C:\Users\user\node-course> 
+
+        so we found pi address of c2, c2 recieved requet and returned response to c1
+
+
+2||  multipel container communication
+    
